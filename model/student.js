@@ -1,24 +1,72 @@
 const mongoose = require("mongoose");
 const Joi = require("@hapi/joi");
+const jwt = require("jsonwebtoken");
+const { bool } = require("@hapi/joi");
 
 const studentSchema = new mongoose.Schema(
   {
-    _id: {
-      type: String,
-      required: true,
-      minlength: 5,
+    username:{
+      type:String,
+      required:true,
+      minlength:5,
     },
-    studentName: {
-      type: String,
-      required: true,
-      minlength: 5,
+    fullName:{
+      type:String,
+      required:true,
+      minlength:5
     },
-    address: {
-      type: String,
+    password:{
+      type:String,
+
     },
+    isPasswordChanged:{
+      type: Boolean,
+      default: false
+    },
+    faculty:{
+      type:String,
+      required:true,
+      
+    },
+    dob:{
+      type:String,
+      required:true
+    },
+
+    address:{
+      type:String,
+      required:true,
+      
+    },
+    contact:{
+      type:String,
+      required:true,
+    },
+    batch:{
+      type:String,
+      required:true,
+    },
+    email:{
+      type:String,
+      required:true,
+    }
   }
   //{ _id: false }
 );
+studentSchema.methods.generateAuthToken = function () {
+  try {
+    const token = jwt.sign({_id:this._id,role:this.role},
+      process.env.JWT_SECRETKEY,
+      {
+        expiresIn: 86400, //the token expires in 24hr
+      }
+    );
+    return token;
+  } catch (error) {
+    console.log(error)
+  }
+  
+};
 
 function validateStudent(student) {
   const schema = Joi.object({
@@ -29,5 +77,5 @@ function validateStudent(student) {
 
   return schema.validate(student);
 }
-exports.Student = mongoose.model("Student", studentSchema);
+module.exports = mongoose.model("Student", studentSchema);
 exports.validate = validateStudent;

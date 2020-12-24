@@ -5,25 +5,28 @@ const {
   // getUsers,
   //getStudentById,
   //getStudentsByRoomId,
-  registerUser,
+  registerAdministration,
+  registerStudent,
   loginUser,
   currentUser,
   forgotPassword,
   resetPassword,
+  confirmEmail,
   //updateUser,
   // deleteUser,
 } = require("../controller/auth");
 
 router = express.Router();
-
 //router.get("/", getUsers);
 //router.get("/:id", getStudentById);
 //router.get("/category/:category", getStudentsByRoomId);
-router.post("/register", registerUser);
-router.post("/login", loginUser);
+router.post("/register/student", registerStudent);
+router.post("/register/administration",registerAdministration)
+router.post("/login",authAdmin, loginUser);
 router.get("/me", [authorize, authAdmin], currentUser);
 router.post("/forgotpassword", forgotPassword);
 router.put("/resetpassword/:resettoken", resetPassword);
+router.get("/confirmemail/:emailconfirmtoken", confirmEmail);
 //router.put("/:id", updateUser);
 //router.delete("/:id", deleteUser);
 

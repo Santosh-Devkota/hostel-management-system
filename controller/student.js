@@ -7,7 +7,9 @@ const { asyncMiddleware } = require("../middleware/asyncMiddleware");
 //@access   Public
 exports.getStudents = async (req, res) => {
   const result = await Student.find();
-  console.log(result);
+  //console.log(result);
+  //res.setHeader("Access-Control-Expose-Headers", "Content-Range");
+  //res.setHeader("Content-Range", "12");
   res.status(200).json({
     success: true,
     data: result,

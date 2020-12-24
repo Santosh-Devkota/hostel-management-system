@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
+const { model } = require("./room");
 const userSchema = new mongoose.Schema({
-  name: {
+  username: {
     type: String,
     minlength: 5,
     maxlength: 50,
@@ -19,36 +20,43 @@ const userSchema = new mongoose.Schema({
     minlength: 5,
     maxlength: 500,
   },
-  isAdmin: {
-    type: Boolean,
+  phoneNo:{
+    type:String,
+    maxlength:10,
   },
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
-  isVerified: {
-    type: Boolean,
-    defalult: false,
+  role: {
+    type:String,
+
   },
+  // resetPasswordToken: String,
+  // resetPasswordExpire: Date,
+  // emailConfirmToken: String,
+  // emailConfirmExpire: Date,
 });
 
 // Encrypt password using bcrypt
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    next();
-  }
+// userSchema.pre("save", async function (next) {
+//   if (!this.isModified("password")) {
+//     next();
+//   }
 
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
+//   const salt = await bcrypt.genSalt(10);
+//   this.password = await bcrypt.hash(this.password, salt);
+// });
 
 userSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign(
-    { _id: this._id, isAdmin: this.isAdmin },
-    process.env.JWT_SECRETKEY,
-    {
-      expiresIn: 86400, //the token expires in 24hr
-    }
-  );
-  return token;
+  try {
+    const token = jwt.sign({_id:this._id,role:this.role},
+      process.env.JWT_SECRETKEY,
+      {
+        expiresIn: 86400, //the token expires in 24hr
+      }
+    );
+    return token;
+  } catch (error) {
+    console.log(error)
+  }
+  
 };
 
 userSchema.methods.getResetPasswordToken = function () {
@@ -62,8 +70,25 @@ userSchema.methods.getResetPasswordToken = function () {
     .digest("hex");
 
   //set expire time for reset token
-  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  if (user.isVerified) {
+    this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  }
   return resetToken;
 };
+userSchema.methods.getEmailConfirmationToken = function () {
+  //Generating Token
+  const confirmToken = crypto.randomBytes(20).toString("hex");
 
-exports.User = mongoose.model("User", userSchema);
+  //Hash token and set to resetPasswordToken field of user database
+  this.emailConfirmToken = crypto
+    .createHash("sha256")
+    .update(confirmToken)
+    .digest("hex");
+
+  //set expire time for reset token
+  this.emailConfirmExpire = Date.now() + 24 * 60 * 60 * 1000;
+
+  return confirmToken;
+};
+
+module.exports = mongoose.model("User", userSchema);
