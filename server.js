@@ -16,10 +16,6 @@ dotenv.config({ path: "./config/config.env" });
 const app = express();
 
 app.use(cors());
-//using the templating engine
-// app.set("view engine", "ejs");
-// app.set("views", "views");
-//connect to the database
 connectDb();
 //to parse the json
 app.use(express.json());
@@ -34,8 +30,6 @@ if (process.env.JWT_SECRETKEY == undefined) {
 }
 //Mounting userAuthentication routes
 app.use("/auth", authRouter);
-//Mounting static routers
-app.use(staticRouter);
 //Mounting the notices routers
 app.use("/",noticeRouter);
 //Mounting the studentDatabase routers
@@ -47,8 +41,9 @@ app.use(erroHandler);
 //launching the server
 app.listen(
   process.env.PORT,
-  "192.168.100.12",
   console.log(
     `Listening with Env:${process.env.DEV_ENV} on port ${process.env.PORT}...`
   )
 );
+// mongodb://localhost/a
+

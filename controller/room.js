@@ -64,6 +64,7 @@ exports.deleteRoom = async(req,res)=>{
 
 
 
+
 //@des      Get all the rooms
 //@route    GET /rooms
 //@access   Public
@@ -85,32 +86,3 @@ exports.getRoomById = async (req, res) => {
     data: result,
   });
 };
-
-
-
-
-// //@des      Delete a Room
-// //@route    Delete /api/v1/questions/:id
-// //@access   Private
-// exports.deleteRoom = async (req, res) => {
-//   try {
-//     const result = await Room.findByIdAndDelete(req.params.id);
-//     console.log(result);
-//     if (!result) {
-//       res.status(404).json({
-//         success: false,
-//         msg: `Question with id:${req.params.id} not found!`,
-//       });
-//     }
-//     res.status(200).json({
-//       success: true,
-//       data: result,
-//     });
-//   } catch (error) {
-//     console.log(error.message);
-//     res.status(404).json({
-//       success: false,
-//       msg: `Question with id:${req.params.id} not found!`,
-//     });
-//   }
-// };
