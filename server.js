@@ -47,7 +47,7 @@ app.use(erroHandler);
 //launching the server
 app.listen(
   process.env.PORT,
-  "192.168.100.12",
+  
   console.log(
     `Listening with Env:${process.env.DEV_ENV} on port ${process.env.PORT}...`
   )
