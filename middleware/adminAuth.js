@@ -9,7 +9,7 @@ const adminAuth = async (req, res, next) =>  {
     if(!user){
       const student = await Student.findOne({username:req.body.username});
       if(!student){
-        return res.status(403).json({ success: false });
+        return res.status(401).json({ msg:"Invalid username or password!" });
       }
       req.body.userrole = "student"
       
