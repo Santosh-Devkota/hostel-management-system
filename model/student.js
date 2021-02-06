@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
-const Joi = require("@hapi/joi");
 const jwt = require("jsonwebtoken");
-const { bool } = require("@hapi/joi");
 
 const studentSchema = new mongoose.Schema(
   {
@@ -9,6 +7,7 @@ const studentSchema = new mongoose.Schema(
       type:String,
       required:true,
       minlength:5,
+      unique:true
     },
     fullName:{
       type:String,
@@ -51,7 +50,6 @@ const studentSchema = new mongoose.Schema(
       required:true,
     }
   }
-  //{ _id: false }
 );
 studentSchema.methods.generateAuthToken = function () {
   try {
@@ -68,14 +66,13 @@ studentSchema.methods.generateAuthToken = function () {
   
 };
 
-function validateStudent(student) {
-  const schema = Joi.object({
-    _id: Joi.string().required().min(5),
-    studentName: Joi.string().required().min(5).max(30),
-    address: Joi.string().required().min(5),
-  });
+// function validateStudent(student) {
+//   const schema = Joi.object({
+//     _id: Joi.string().required().min(5),
+//     studentName: Joi.string().required().min(5).max(30),
+//     address: Joi.string().required().min(5),
+//   });
 
-  return schema.validate(student);
-}
+//   return schema.validate(student);
+// }
 module.exports = mongoose.model("Student", studentSchema);
-exports.validate = validateStudent;

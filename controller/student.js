@@ -1,4 +1,4 @@
-const { Student, validate } = require("../model/student");
+const Student = require("../model/student");
 const ErrorResponse = require("../utils/customError");
 const { asyncMiddleware } = require("../middleware/asyncMiddleware");
 
@@ -7,9 +7,7 @@ const { asyncMiddleware } = require("../middleware/asyncMiddleware");
 //@access   Public
 exports.getStudents = async (req, res) => {
   const result = await Student.find();
-  //console.log(result);
-  //res.setHeader("Access-Control-Expose-Headers", "Content-Range");
-  //res.setHeader("Content-Range", "12");
+  // remember find() always gives array && it gives empty array if no data exits
   res.status(200).json({
     success: true,
     data: result,
@@ -20,11 +18,8 @@ exports.getStudents = async (req, res) => {
 //@route    GET /api/v1/students/:id
 //@access   Public
 exports.getStudentById = asyncMiddleware(async (req, res) => {
-  //console.log(req.params.id);
   const result = await Student.findById(req.params.id);
-  //console.log(result);
   if (!result) {
-    //throw new ErrorResponse("NOT FOUND BITCH!", 404);
     res.status(404).json({
       success: true,
       msg: "not found bitch",
@@ -34,31 +29,25 @@ exports.getStudentById = asyncMiddleware(async (req, res) => {
     success: true,
     data: result,
   });
-  // try {
-
-  // } catch (error) {
-  //   next(new ErrorResponse("Not found bitch!", 404));
-  // }
 });
 
 //@des      Create new Student
 //@route    POST /api/v1/students
 //@access   Private
 exports.createStudent = async (req, res) => {
-  //const { error } = validate(req.body);
-  //console.log(error);
   try {
-    const result = await Student.create(req.body);
-    res.status(200).json({
-      success: true,
-      data: result,
-    });
+    const result  = await Student.findOne({username:req.body.username});
+    if(result){
+     return res.status(400).json({success:false, msg: "The user already exists!"});
+    }
+    const student = await Student.create(req.body);
+    res.status(200).json({success:true,data:student});
+    
   } catch (err) {
     console.log(err.message);
-    //console.log("this is error in db");
-    // for (const field in err.errors) {
-    //   console.log(err.errors[field].message);
-    // }
+    res.status(400).json({success:false, msg:"Unable to create user!"});
+
+
   }
 };
 

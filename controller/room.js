@@ -1,4 +1,5 @@
 const Room = require("../model/room");
+const Student = require("../model/student");
 
 
 //@des      Create new Room
@@ -11,6 +12,16 @@ exports.createRoom = async (req, res) => {
       res.status(400).json({
         msg:"Room already exists."
       })
+    }
+    if(req.body.student.length != 0){
+      // Promise.all resolves all the remaining promises so that you won't get promise object as return
+      const students = await Promise.all(req.body.student.map(async(userName)=> {const student=  await Student.findOne({username: userName});
+      return student;}));
+
+      if(!students){
+        return res.status(400).json({success: false, msg: "The student(s) doesn't exist!"});
+      }
+      req.body.student = students.map((student)=>student._id) ;
     }
     const result = await Room.create(req.body);
     res.status(200).json({
@@ -28,6 +39,25 @@ exports.createRoom = async (req, res) => {
 //@access   Private
 exports.updateRoom = async (req, res) => {
   try {
+
+    if(req.body.student.length != 0){
+      // Promise.all resolves all the remaining promises so that you won't get promise object as return
+      const students = await Promise.all(req.body.student.map(async(userName)=> await Student.findOne({username: userName})));
+
+      console.log(students);
+      if(students.includes(null)){
+        return res.status(400).json({success: false, msg: "The student(s) doesn't exist!"});
+      }
+      const studentIds = students.map((student)=>student._id);
+      const result = await Room.findOne({student:studentIds});
+      console.log(result);
+      if(result){
+        return res.status(400).json({success:false, msg: "The student(s) is already assigned!"});
+      }
+      req.body.student = studentIds ;
+    }
+
+
     const result = await Room.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
