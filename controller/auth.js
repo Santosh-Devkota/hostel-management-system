@@ -76,7 +76,7 @@ exports.registerStudent = async (req, res, next) => {
  
 
 //@des      login the user
-//@route    POST /api/v1/auth/login
+//@route    POST /auth/login
 //@access   Public
 exports.loginUser = async (req, res, next) => {
   if(req.body.userrole == "admin" || req.body.userrole == "administration"){
