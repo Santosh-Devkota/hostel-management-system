@@ -2,8 +2,7 @@ const express = require("express");
 const authorize = require("../middleware/authorize");
 const {
   getRooms,
-  getRoomById,
-  //getStudentsByRoomId,
+  getRoomByRoomName,
   createRoom,
   updateRoom,
   deleteRoom,
@@ -11,11 +10,12 @@ const {
 
 router = express.Router();
 
+router.get("/", getRooms);
+router.get("/:roomname", getRoomByRoomName);
 router.post("/",authorize, createRoom);
 router.put("/:id",authorize, updateRoom);
 router.delete("/:id",authorize, deleteRoom);
-router.get("/", getRooms);
-router.get("/:id", getRoomById);
+
 
 
 module.exports = router;

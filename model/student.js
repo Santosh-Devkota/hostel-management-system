@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const Schema = mongoose.Schema;
 
 const studentSchema = new mongoose.Schema(
   {
@@ -54,10 +55,10 @@ const studentSchema = new mongoose.Schema(
       default:"student"
     },
     // to make the query easier
-    // room: {
-    //   type:Schema.Types.ObjectId,
-    //   ref:"Room"
-    // }
+    room: {
+      type:Schema.Types.ObjectId,
+      ref:"Room"
+    }
   }
 );
 studentSchema.methods.generateAuthToken = function () {

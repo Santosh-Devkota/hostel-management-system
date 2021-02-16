@@ -15,13 +15,29 @@ exports.createRoom = async (req, res) => {
     }
     if(req.body.student.length != 0){
       // Promise.all resolves all the remaining promises so that you won't get promise object as return
-      const students = await Promise.all(req.body.student.map(async(userName)=> {const student=  await Student.findOne({username: userName});
+      // to find if the student exist in the database
+      const students = await Promise.all(req.body.student.map(async(studentName)=> {const student=  await Student.findOne({username: studentName});
       return student;}));
       
       if(!students){
         return res.status(400).json({success: false, msg: "The student(s) doesn't exist!"});
       }
+
+      // to check if the student to be added is already assigned to the room
+      const isAssignedToRoom = students.map(studentObj => {
+        //checking if the room property exist in that student
+        // if there is room property the student is already assigned to the room
+        if(typeof studentObj.room !== undefined){
+          return true;
+        }
+        return false;
+      })
+      if(isAssignedToRoom.includes(true)){
+        return res.status(400).json({msg:"The student(s) is already assigned!"})
+      }
+      // IF not assigned continued to add the room
       req.body.student = students.map((student)=>student._id) ;
+      
     }
     const result = await Room.create(req.body);
     res.status(200).json({
@@ -34,17 +50,39 @@ exports.createRoom = async (req, res) => {
 };
 
 
+//@des      Get all the rooms
+//@route    GET /rooms
+//@access   Public
+exports.getRooms = async (req, res) => {
+  const result = await Room.find().populate("student", "-_id");
+  res.status(200).json({
+    success: true,
+    data: result,
+  });
+};
+
+exports.getRoomByRoomName = async (req, res) => {
+  try {
+    const result = await Room.findOne({roomName:req.params.roomname}).populate("student");
+    if(!result){
+      return res.status(404).json({msg:"No such rooms!"});
+    }
+  res.status(200).json({
+    data: result,
+  });
+  } catch (error) {
+    return res.status(400).json({});
+  }
+};
+
 //@des      Update a Room
 //@route    PUT /rooms/:id
 //@access   Private
 exports.updateRoom = async (req, res) => {
   try {
-
     if(req.body.student.length != 0){
       // Promise.all resolves all the remaining promises so that you won't get promise object as return
       const students = await Promise.all(req.body.student.map(async(userName)=> await Student.findOne({username: userName})));
-
-      console.log(students);
       if(students.includes(null)){
         return res.status(400).json({success: false, msg: "The student(s) doesn't exist!"});
       }
@@ -54,7 +92,20 @@ exports.updateRoom = async (req, res) => {
       if(result){
         return res.status(400).json({success:false, msg: "The student(s) is already assigned!"});
       }
-      req.body.student = studentIds ;
+      // to check if the student to be added is already assigned to the room
+      const isAssignedToRoom = students.map(studentObj => {
+        //checking if the room property exist in that student
+        // if there is room property the student is already assigned to the room
+        if(typeof studentObj.room !== undefined){
+          return true;
+        }
+        return false;
+      })
+      if(isAssignedToRoom.includes(true)){
+        return res.status(400).json({msg:"The student(s) is already assigned!"})
+      }
+      // IF not assigned continued to add the room
+      req.body.student = students.map((student)=>student._id) ;
     }
 
 
@@ -80,7 +131,7 @@ exports.updateRoom = async (req, res) => {
 
 exports.deleteRoom = async(req,res)=>{
   try{
-    const result = await Room.findOneAndDelete({_id: req.params.id});
+    const result = await Room.findByIdAndDelete(req.params.id);
     if(!result){
       res.status(404).json({msg:"Room not found."})
     }
@@ -93,26 +144,22 @@ exports.deleteRoom = async(req,res)=>{
 }
 
 
+exports.filterRooms = async(req,res)=>{
+  try {
+    const {block} = req.query;
+    if(block){
+      const rooms = await Room.find({block:req.query.block});
+      if(rooms.length == 0){
+        res.status(400).json({msg:"No rooms found!"});
+      }
+      res.status(200).json({success:true,data:rooms});
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(404).json({});
+  }
+}
 
 
-//@des      Get all the rooms
-//@route    GET /rooms
-//@access   Public
-exports.getRooms = async (req, res) => {
-  const result = await Room.find().populate("student", "-_id");
-  res.status(200).json({
-    success: true,
-    data: result,
-  });
-};
 
-//@des      Get single the Room
-//@route    GET /api/v1/rooms/:id
-//@access   Public
-exports.getRoomById = async (req, res) => {
-  console.log(req.params.id);
-  const result = await Room.findById(req.params.id).populate("student");
-  res.status(200).json({
-    data: result,
-  });
-};
+
