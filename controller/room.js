@@ -17,7 +17,7 @@ exports.createRoom = async (req, res) => {
       // Promise.all resolves all the remaining promises so that you won't get promise object as return
       const students = await Promise.all(req.body.student.map(async(userName)=> {const student=  await Student.findOne({username: userName});
       return student;}));
-
+      
       if(!students){
         return res.status(400).json({success: false, msg: "The student(s) doesn't exist!"});
       }

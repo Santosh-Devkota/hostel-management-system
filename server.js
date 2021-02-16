@@ -33,7 +33,7 @@ app.use("/auth", authRouter);
 //Mounting the notices routers
 app.use("/",noticeRouter);
 //Mounting the studentDatabase routers
-app.use("/students", studentRouter);
+app.use("/", studentRouter);
 //Mounting the roomDatabase routers
 app.use("/rooms", roomRouter);
 //error handling middleware

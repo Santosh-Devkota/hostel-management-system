@@ -1,6 +1,6 @@
 const express = require("express");
 const authorize = require("../middleware/authorize");
-const adminAuth = require("../middleware/adminAuth");
+const isAdmin = require("../middleware/isAdmin");
 const {
   getStudents,
   getStudentById,
@@ -8,15 +8,17 @@ const {
   createStudent,
   updateStudent,
   deleteStudent,
+  getStudentByFilter
 } = require("../controller/student");
 
 router = express.Router();
 
-router.get("/", getStudents);
-router.get("/:id", getStudentById);
+router.get("/students", getStudents);
+router.get("/students/:id", getStudentById);
+router.get("/filterstudents",getStudentByFilter);
 //router.get("/category/:category", getStudentsByRoomId);
-router.post("/", authorize, createStudent);
-router.put("/:id", authorize,updateStudent);
-router.delete("/:id", authorize,deleteStudent);
+router.post("/students", [authorize,isAdmin], createStudent);
+router.put("/students/:id", [authorize,isAdmin],updateStudent);
+router.delete("/students/:id", [authorize,isAdmin],deleteStudent);
 
 module.exports = router;

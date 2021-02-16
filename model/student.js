@@ -16,7 +16,6 @@ const studentSchema = new mongoose.Schema(
     },
     password:{
       type:String,
-
     },
     isPasswordChanged:{
       type: Boolean,
@@ -48,7 +47,17 @@ const studentSchema = new mongoose.Schema(
     email:{
       type:String,
       required:true,
-    }
+    },
+    role:{
+      type:String,
+      required:true,
+      default:"student"
+    },
+    // to make the query easier
+    // room: {
+    //   type:Schema.Types.ObjectId,
+    //   ref:"Room"
+    // }
   }
 );
 studentSchema.methods.generateAuthToken = function () {

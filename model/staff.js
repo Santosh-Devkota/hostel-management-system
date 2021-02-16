@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const { model } = require("./room");
-const userSchema = new mongoose.Schema({
+const staffSchema = new mongoose.Schema({
   username: {
     type: String,
     minlength: 5,
@@ -26,6 +26,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type:String,
+    enum:['admin','staff','student'],
+    default:'student'
 
   },
   // resetPasswordToken: String,
@@ -35,7 +37,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // Encrypt password using bcrypt
-// userSchema.pre("save", async function (next) {
+// staffSchema.pre("save", async function (next) {
 //   if (!this.isModified("password")) {
 //     next();
 //   }
@@ -44,7 +46,7 @@ const userSchema = new mongoose.Schema({
 //   this.password = await bcrypt.hash(this.password, salt);
 // });
 
-userSchema.methods.generateAuthToken = function () {
+staffSchema.methods.generateAuthToken = function () {
   try {
     const token = jwt.sign({_id:this._id,role:this.role},
       process.env.JWT_SECRETKEY,
@@ -59,7 +61,7 @@ userSchema.methods.generateAuthToken = function () {
   
 };
 
-userSchema.methods.getResetPasswordToken = function () {
+staffSchema.methods.getResetPasswordToken = function () {
   //Generating Token
   const resetToken = crypto.randomBytes(20).toString("hex");
 
@@ -75,7 +77,7 @@ userSchema.methods.getResetPasswordToken = function () {
   }
   return resetToken;
 };
-userSchema.methods.getEmailConfirmationToken = function () {
+staffSchema.methods.getEmailConfirmationToken = function () {
   //Generating Token
   const confirmToken = crypto.randomBytes(20).toString("hex");
 
@@ -91,4 +93,4 @@ userSchema.methods.getEmailConfirmationToken = function () {
   return confirmToken;
 };
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("Staffs", staffSchema);

@@ -1,12 +1,14 @@
 const Student = require("../model/student");
 const ErrorResponse = require("../utils/customError");
 const { asyncMiddleware } = require("../middleware/asyncMiddleware");
+const Room = require("../model/room");
 
 //@des      Get all the students
-//@route    GET /api/v1/students
+//@route    GET /students
 //@access   Public
 exports.getStudents = async (req, res) => {
-  const result = await Student.find();
+  const result = await Student.find().sort({'_id': -1})
+  .limit(10);
   // remember find() always gives array && it gives empty array if no data exits
   res.status(200).json({
     success: true,
@@ -15,12 +17,12 @@ exports.getStudents = async (req, res) => {
 };
 
 //@des      Get single the Student
-//@route    GET /api/v1/students/:id
+//@route    GET /students/:id
 //@access   Public
-exports.getStudentById = asyncMiddleware(async (req, res) => {
-  const result = await Student.findById(req.params.id);
+exports.getStudentById = async (req, res) => {
+  const result = await Student.findOne({username:req.params.id});
   if (!result) {
-    res.status(404).json({
+   return res.status(404).json({
       success: true,
       msg: "not found bitch",
     });
@@ -29,10 +31,53 @@ exports.getStudentById = asyncMiddleware(async (req, res) => {
     success: true,
     data: result,
   });
-});
+};
+
+//@des Get students by query params
+//@route get /filterstudents?block=A&batch073&faculty=BEX
+// filters 1) Room Block 2)Batch 3)Faculty
+//@access private 
+exports.getStudentByFilter = async(req,res)=>{
+  // try {
+  //   const {block,batch,faculty} = req.query;
+  //   if(block){
+  //     const rooms = await Room.find({block:block});
+  //     const students = rooms.map((room){
+  //       if(room.student)
+  //     })
+  //   }
+  // } catch (error) {
+    
+  // }
+
+  try {
+    const {batch,faculty} = req.query;
+    if(batch && faculty){
+      const student = await Student.find({batch:batch,faculty:faculty}) 
+      if(student.length ==0){
+        res.status(404).json({msg:"No such records"});
+      }
+      res.status(200).json({success:true,data:student});
+    } else if(batch){
+      const student = await Student.find({batch:batch});
+      if(student.length ==0){
+        res.status(404).json({msg:"No such records"});
+      }
+      res.status(200).json({success:true,data:student});
+    } else if(faculty){
+      const student = await Student.find({faculty});
+      if(student.length ==0){
+        res.status(404).json({msg:"No such records"});
+      }
+      res.status(200).json({success:true,data:student});
+    }
+  } catch (error) {
+    
+  }
+}
 
 //@des      Create new Student
-//@route    POST /api/v1/students
+//@route    POST /students
 //@access   Private
 exports.createStudent = async (req, res) => {
   try {
@@ -46,17 +91,15 @@ exports.createStudent = async (req, res) => {
   } catch (err) {
     console.log(err.message);
     res.status(400).json({success:false, msg:"Unable to create user!"});
-
-
   }
 };
 
 //@des      Update a Student
-//@route    PUT /api/v1/students/:id
+//@route    PUT /students/:id
 //@access   Private
 exports.updateStudent = async (req, res) => {
   try {
-    const result = await Student.findByIdAndUpdate(req.params.id, req.body, {
+    const result = await Student.findOneAndUpdate({username:req.params.id}, req.body, {
       new: true,
       runValidators: true,
     });
@@ -81,11 +124,11 @@ exports.updateStudent = async (req, res) => {
 };
 
 //@des      Delete a Student
-//@route    Delete /api/v1/questions/:id
+//@route    Delete /questions/:id
 //@access   Private
 exports.deleteStudent = async (req, res) => {
   try {
-    const result = await Student.findByIdAndDelete(req.params.id);
+    const result = await Student.findOneAndDelete({username:req.params.id});
     console.log(result);
     if (!result) {
       res.status(404).json({
@@ -105,3 +148,4 @@ exports.deleteStudent = async (req, res) => {
     });
   }
 };
+
