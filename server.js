@@ -39,8 +39,9 @@ app.use("/rooms", roomRouter);
 //error handling middleware
 app.use(erroHandler);
 //launching the server
+const PORT = process.env.PORT || 5000;
 app.listen(
-  process.env.PORT,
+  PORT,
   console.log(
     `Listening with Env:${process.env.DEV_ENV} on port ${process.env.PORT}...`
   )
