@@ -3,7 +3,7 @@ const Staffs = require("../model/staff");
 const Student = require("../model/student");
 const ErrorResponse = require("../utils/customError");
 const sendEmail = require("../utils/sendEmail");
-var generator = require('generate-password');
+// var generator = require('generate-password');
 //const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 var generator = require('generate-password');
@@ -19,16 +19,16 @@ exports.registerStaff = async (req, res, next) => {
     if(user){
       return res.status(400).json({msg:"User already exists"});
     }
-    const newUser = new Staffs({
+    const newStaff = new Staffs({
       username: req.body.username,
       email: req.body.email,
       password: req.body.password,
       
     });
-    newUser.role = "staff";
+    newStaff.role = "staff";
       const salt = await bcrypt.genSalt(10);
-     newUser.password = await bcrypt.hash(newUser.password, salt);
-    await newUser.save();
+     newStaff.password = await bcrypt.hash(newStaff.password, salt);
+    await newStaff.save();
     return res.status(200).json({
       msg:"User created successfully!"
     })
@@ -111,7 +111,7 @@ exports.loginUser = async (req, res, next) => {
     //to provide role  as a payload to the token, assiging this value
     user.role = req.body.role;
     const token = user.generateAuthToken();
-    res.status(200).json({token:token});
+    res.status(200).json({success:true,data:{token:token}});
     
   }
   else if(role == "student"){

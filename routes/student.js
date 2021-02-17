@@ -17,8 +17,8 @@ router.get("/students", getStudents);
 router.get("/students/:id", getStudentById);
 router.get("/filterstudents",getStudentByFilter);
 //router.get("/category/:category", getStudentsByRoomId);
-router.post("/students", [authorize,isAdmin], createStudent);
-router.put("/students/:id", [authorize,isAdmin],updateStudent);
-router.delete("/students/:id", [authorize,isAdmin],deleteStudent);
+router.post("/students", [authorize], createStudent);
+router.put("/students/:id", [authorize],updateStudent);
+router.delete("/students/:id", [authorize],deleteStudent);
 
 module.exports = router;

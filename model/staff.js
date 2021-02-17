@@ -48,7 +48,7 @@ const staffSchema = new mongoose.Schema({
 
 staffSchema.methods.generateAuthToken = function () {
   try {
-    const token = jwt.sign({_id:this._id,role:this.role},
+    const token = jwt.sign({_id:this._id,role:this.role,email:this.email},
       process.env.JWT_SECRETKEY,
       {
         expiresIn: 86400, //the token expires in 24hr
