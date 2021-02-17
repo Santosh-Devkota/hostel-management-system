@@ -91,7 +91,7 @@ exports.createStudent = async (req, res) => {
 //@access   Private
 exports.updateStudent = async (req, res) => {
   try {
-    const result = await Student.findOneAndUpdate({username:req.params.id}, req.body, {
+    const result = await Student.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
@@ -121,24 +121,32 @@ exports.updateStudent = async (req, res) => {
 exports.deleteStudent = async (req, res) => {
   try {
     //find the student record and determining the "room_id";
-    const std = await Student.findOne({username:req.params.id});
-    const room_id = std.room;
-    const delStd_id = std._id;
-    const result = await Student.findOneAndDelete({username:req.params.id});
-    if (!result || !std) {
+
+    // const std = await Student.findById(req.params.id);
+    // const room_id = std.room;
+    // const delStd_id = std._id;
+    const result = await Student.findOneAndDelete(req.params.id);
+    // if (!result || !std) {
+    //   res.status(404).json({
+    //     success: false,
+    //     msg: `Student with id:${req.params.id} not found!`,
+    //   });
+    // }
+    if (!result) {
       res.status(404).json({
         success: false,
         msg: `Student with id:${req.params.id} not found!`,
       });
     }
     // delete that student's record from the 'Room' table
-    const deletedStdRoom = await Room.findById(room_id);
-    const totalRoomStd = deletedStdRoom.student;
-    const filteredRoomStd = totalRoomStd.filter((std)=> std!==delStd_id);
-    const reslt = await Room.findByIdAndUpdate(room_id,filteredRoomStd,{
-      new:true,
-      runValidators:true
-    })
+
+    // const deletedStdRoom = await Room.findById(room_id);
+    // const totalRoomStd = deletedStdRoom.student;
+    // const filteredRoomStd = totalRoomStd.filter((std)=> std!==delStd_id);
+    // const reslt = await Room.findByIdAndUpdate(room_id,filteredRoomStd,{
+    //   new:true,
+    //   runValidators:true
+    // })
 
     res.status(200).json({
       success: true,
