@@ -88,7 +88,7 @@ exports.loginUser = async (req, res, next) => {
     if(!staff){
       const student = await Student.findOne({username:req.body.username});
       if(!student){
-        res.staus(400).json({msg:"Invalid username or password!"});
+        res.status(400).json({msg:"Invalid username or password!"});
       }
       role = student.role;
     } 
@@ -109,7 +109,7 @@ exports.loginUser = async (req, res, next) => {
       })
     }
     //to provide role  as a payload to the token, assiging this value
-    user.role = req.body.role;
+    user.role = role;
     const token = user.generateAuthToken();
     res.status(200).json({success:true,data:{token:token}});
     
