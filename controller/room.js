@@ -16,7 +16,7 @@ exports.createRoom = async (req, res) => {
       // Promise.all resolves all the remaining promises so that you won't get promise object as return
       // to find if the student exist in the database
       // For example req.body.students = ["073BEX437","073....","....."] 
-      const students = await Promise.all(req.body.students.map(async(studentName)=> {const student=  await Student.findOne({username: studentName});
+      const students = await Promise.all(req.body.students.map(async(studentName)=> {const student=  await Student.findOne({rollNo: studentName});
                                         return student;}));
       if(students.includes(undefined) || students.includes(null)){
         return res.status(400).json({msg: "One or more student(s) doesn't exist!"});
@@ -69,7 +69,7 @@ exports.getRooms = async (req, res) => {
 
 exports.getRoomByRoomName = async (req, res) => {
   try {
-    const result = await Room.findOne({roomName:req.params.roomname}).populate("student","_id");
+    const result = await Room.findOne({roomName:req.params.roomname}).populate("student","rollNo fullName");
     if(!result){
       return res.status(404).json({msg:"No rooms found!"});
     }
@@ -80,6 +80,20 @@ exports.getRoomByRoomName = async (req, res) => {
     return res.status(400).json({});
   }
 };
+
+exports.getRoomsByBlock = async(req,res)=>{
+  try {
+    
+    const rooms = await Room.find({block:req.params.block})
+    if(rooms.length === 0){
+      return res.status(404).json({msg:"No rooms found!"});
+    }
+    res.status(200).json({data:rooms})
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({msg:"Unable to show rooms"})
+  }
+}
 
 //@des      Update a Room
 //@route    PUT /rooms/:id
