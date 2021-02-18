@@ -12,11 +12,11 @@ exports.createRoom = async (req, res) => {
         msg:"Room already exists."
       })
     }
-    if(req.body.student.length != 0){
+    if(req.body.students.length != 0){
       // Promise.all resolves all the remaining promises so that you won't get promise object as return
       // to find if the student exist in the database
-      // For example req.body.student = ["073BEX437","073....","....."] 
-      const students = await Promise.all(req.body.student.map(async(studentName)=> {const student=  await Student.findOne({username: studentName});
+      // For example req.body.students = ["073BEX437","073....","....."] 
+      const students = await Promise.all(req.body.students.map(async(studentName)=> {const student=  await Student.findOne({username: studentName});
                                         return student;}));
       if(students.includes(undefined) || students.includes(null)){
         return res.status(400).json({msg: "One or more student(s) doesn't exist!"});
@@ -30,20 +30,21 @@ exports.createRoom = async (req, res) => {
         return res.status(400).json({msg:"The student(s) is already assigned to a room"})
       }
 
-      // assiging the student's ids to the req.body.student
-      // req.body.student = ["73BEX..."] => req.body.student = ["365645323467"](id)
-      req.body.student = students.map((student)=>student._id) ;
+      // assiging the student's ids to the req.body.students
+      // req.body.students = ["73BEX..."] => req.body.students = ["365645323467"](id)
+      req.body.students = students.map((student)=>student._id) ;
       
     }
     const createdRoom = await Room.create(req.body);
     // setting the "room" field in the student database
-    await Promise.all(req.body.student.map(async(student_id)=>await Student.findByIdAndUpdate(student_id,{room:createdRoom._id})));
+    await Promise.all(req.body.students.map(async(student_id)=>await Student.findByIdAndUpdate(student_id,{room:createdRoom._id})));
     res.status(200).json({
       data: createdRoom,
       msg:"Room created successfully!"
     });
   } catch (err) {
     console.log(err);
+    res.status(400).json({msg:"Unable to create the room!"})
   }
 };
 
@@ -85,11 +86,11 @@ exports.getRoomByRoomName = async (req, res) => {
 //@access   Private
 exports.updateRoom = async (req, res) => {
   try {
-    // req.body.student.length != 0 checks if there is any student provided for update in room
-    if(req.body.student.length != 0){
-      // For example req.body.student = ["073BEX437"] 
+    // req.body.students.length != 0 checks if there is any student provided for update in room
+    if(req.body.students.length != 0){
+      // For example req.body.students = ["073BEX437"] 
       // Promise.all resolves all the remaining promises so that you won't get promise object as return
-      const students = await Promise.all(req.body.student.map(async(stdRoll)=> await Student.findOne({rollNo: stdRoll})));
+      const students = await Promise.all(req.body.students.map(async(stdRoll)=> await Student.findOne({rollNo: stdRoll})));
       if(students.includes(null) || students.includes(undefined)){
         return res.status(400).json({msg: "The student(s) doesn't exist!"});
       }
@@ -102,7 +103,7 @@ exports.updateRoom = async (req, res) => {
         return res.status(400).json({msg:"The student(s) is already assigned to a room"})
       }
       // IF not assigned continued to add the requested student to the room
-      req.body.student = students.map((student)=>student._id) ;
+      req.body.students = students.map((student)=>student._id) ;
     }
     const updatedRoom = await Room.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -114,7 +115,7 @@ exports.updateRoom = async (req, res) => {
       });
     }
     // setting the "room" field in the student database
-    await Promise.all(req.body.student.map(async(student_id)=>await Student.findByIdAndUpdate(student_id,{room:updatedRoom._id})));
+    await Promise.all(req.body.students.map(async(student_id)=>await Student.findByIdAndUpdate(student_id,{room:updatedRoom._id})));
     res.status(200).json({
       data: updatedRoom,
     });

@@ -132,7 +132,6 @@ exports.deleteStudent = async (req, res) => {
       });
     }
     // delete that student's record from the 'Room' table
-
     // const deletedStdRoom = await Room.findById(room_id);
     // const totalRoomStd = deletedStdRoom.student;
     // const filteredRoomStd = totalRoomStd.filter((std)=> std!==delStd_id);

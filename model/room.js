@@ -6,7 +6,7 @@ const roomSchema = new mongoose.Schema({
     type:String,
     required:true,
   },
-  student: [{
+  students: [{
     type: Schema.Types.ObjectId,
     ref: "Student",
     //required: true,
@@ -15,7 +15,7 @@ const roomSchema = new mongoose.Schema({
     table: { type: Number, default: 0 },
     chair: { type: Number, default: 0 },
     bed: { type: Number, default: 0 },
-    wadrobe: { type: Number, default: 0 },
+    wardrobe: { type: Number, default: 0 },
   },
   block: { type: String, enum: ["A", "B", "C","D", "E"] },
 });
