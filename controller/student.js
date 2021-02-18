@@ -123,27 +123,13 @@ exports.deleteStudent = async (req, res) => {
 
     const result = await Student.findOneAndDelete(req.params.id);
     if(result){
-      const deletedStudentsRoom = await Room.findOne({students:req.params.id})
+      const operationResult = await Room.updateOne({students:req.params.id},{$pull:{students:req.params.id}})
     }
-    // if (!result || !std) {
-    //   res.status(404).json({,
-    //     msg: `Student with id:${req.params.id} not found!`,
-    //   });
-    // }
     if (!result) {
       res.status(404).json({
         msg: `Student with id:${req.params.id} not found!`,
       });
     }
-
-    // delete that student's record from the 'Room' table
-    // const deletedStdRoom = await Room.findById(room_id);
-    // const totalRoomStd = deletedStdRoom.student;
-    // const filteredRoomStd = totalRoomStd.filter((std)=> std!==delStd_id);
-    // const reslt = await Room.findByIdAndUpdate(room_id,filteredRoomStd,{
-    //   new:true,
-    //   runValidators:true
-    // })
     res.status(200).json({
       msg:"Student deleted Successfully!"
     });
