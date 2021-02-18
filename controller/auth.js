@@ -19,13 +19,14 @@ exports.registerStaff = async (req, res, next) => {
     if(user){
       return res.status(400).json({msg:"User already exists"});
     }
+
     const newStaff = new Staffs({
       username: req.body.username,
       email: req.body.email,
       password: req.body.password,
-      
+      role : req.body.role
     });
-    newStaff.role = "staff";
+    // newStaff.role = "staff";
       const salt = await bcrypt.genSalt(10);
      newStaff.password = await bcrypt.hash(newStaff.password, salt);
     await newStaff.save();
@@ -91,13 +92,14 @@ exports.loginUser = async (req, res, next) => {
         res.status(400).json({msg:"Invalid username or password!"});
       }
       role = student.role;
-    } 
-    role = staff.role;
-
+    } else {
+      role = staff.role;
+    }
   } catch (error) {
+    console.log(error.message);
     res.status(400).json({msg:"Invalid username or pw"});
   }
-  if(role == "admin" || role == "staff"){
+  if(role == "admin" || role == "hostelstaff" || role == "meshstaff"){
     const user = await Staffs.findOne({username:req.body.username}).select("+password");
     const validPassword = await bcrypt.compare(
       req.body.password,
@@ -115,20 +117,19 @@ exports.loginUser = async (req, res, next) => {
     
   }
   else if(role == "student"){
-    const student = await Student.findOne({rollNo: req.body.username}).select("+password");
+    try {
+      const student = await Student.findOne({rollNo: req.body.username}).select("+password");
     if(!student.isPasswordChanged){
       if(req.body.password == student.password){
         // means password matches to the unchanged password
         const token = student.generateAuthToken();
-        res.status(200).json({token:token});
+        return res.status(200).json({data:{token:token}});
       }
-      else {
-        return res.status(400).json({
-          msg:"Invalid username or password"
-        })
-      }
+      res.status(400).json({
+        msg:"Invalid username or password"
+      })
     }
-    else{
+    else if(student.isPasswordChanged){
       const validPassword = await bcrypt.compare(
         req.body.password,
         user.password
@@ -140,6 +141,10 @@ exports.loginUser = async (req, res, next) => {
       }
       const token = user.generateAuthToken();
       res.status(200).json({data:{token:token}});
+    }
+    } catch (error) {
+      console.log(error.message);
+      res.status(400).json({msg:"Unable to login!"})
     }
   }
 };
@@ -161,10 +166,10 @@ exports.currentUser = async (req, res, next) => {
 
 exports.resetPassword = async(req,res)=>{
   try {
-    if(req.body.role == "admin" || req.body.role == "staff"){
+    if(req.body.role == "admin" || req.body.role == "hostelstaff" || req.body.role == "meshstaff"){
       // generating and saving the password in database
-        const salt = await bcrypt.genSalt(10);
-       password = await bcrypt.hash(req.body.newpassword, salt);
+      const salt = await bcrypt.genSalt(10);
+      password = await bcrypt.hash(req.body.newpassword, salt);
       const user = await Staffs.findOneAndUpdate({username:req.body.username},password,{new:true});
       if(!user){
         return res.status(400).json({msg:"Unable to change the password!"});

@@ -26,9 +26,8 @@ const staffSchema = new mongoose.Schema({
   },
   role: {
     type:String,
-    enum:['admin','staff','student'],
-    default:'student'
-
+    enum:['admin','hostelstaff','student',"meshstaff"],
+    default:'hostelstaff'
   },
   // resetPasswordToken: String,
   // resetPasswordExpire: Date,
