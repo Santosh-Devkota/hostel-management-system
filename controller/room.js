@@ -1,7 +1,6 @@
 const Room = require("../model/room");
 const Student = require("../model/student");
 
-
 //@des      Create new Room
 //@route    POST /rooms
 //@access   Private
@@ -16,32 +15,29 @@ exports.createRoom = async (req, res) => {
     if(req.body.student.length != 0){
       // Promise.all resolves all the remaining promises so that you won't get promise object as return
       // to find if the student exist in the database
+      // For example req.body.student = ["073BEX437","073....","....."] 
       const students = await Promise.all(req.body.student.map(async(studentName)=> {const student=  await Student.findOne({username: studentName});
-      return student;}));
-      
-      if(!students){
-        return res.status(400).json({success: false, msg: "The student(s) doesn't exist!"});
+                                        return student;}));
+      if(students.includes(undefined) || students.includes(null)){
+        return res.status(400).json({msg: "One or more student(s) doesn't exist!"});
+      }
+     
+      //determining the value of room field in student's record
+      var studentsRoom = students.map((std) => std.room);
+
+      // checking if the room is defined for that particular student
+      if(!studentsRoom.includes(undefined)){
+        return res.status(400).json({msg:"The student(s) is already assigned to a room"})
       }
 
-      // to check if the student to be added is already assigned to the room
-      const isAssignedToRoom = students.map(studentObj => {
-        //checking if the room property exist in that student
-        // if there is room property the student is already assigned to the room
-        if(typeof studentObj.room !== undefined){
-          return true;
-        }
-        return false;
-      })
-      if(isAssignedToRoom.includes(true)){
-        return res.status(400).json({msg:"The student(s) is already assigned!"})
-      }
-      // IF not assigned continued to add the room
+      // assiging the student's ids to the req.body.student
+      // req.body.student = ["73BEX..."] => req.body.student = ["365645323467"](id)
       req.body.student = students.map((student)=>student._id) ;
       
     }
     const createdRoom = await Room.create(req.body);
     // setting the "room" field in the student database
-    await Promise.all(req.body.student.map(async(student_id)=>await Student.findByIdAndUpdate(student_id,updatedRoom._id)));
+    await Promise.all(req.body.student.map(async(student_id)=>await Student.findByIdAndUpdate(student_id,{room:createdRoom._id})));
     res.status(200).json({
       data: createdRoom,
       msg:"Room created successfully!"
@@ -57,12 +53,11 @@ exports.createRoom = async (req, res) => {
 //@access   Public
 exports.getRooms = async (req, res) => {
   try {
-    const result = await Room.find().populate("student", "_id");
+    const result = await Room.find().sort({'_id':-1}).populate("student", "_id");
   if(result.length === 0){
     return res.status(400).json({msg:"No rooms to show!"})
   }
   res.status(200).json({
-    success: true,
     data: result,
   });
   } catch (error) {
@@ -90,35 +85,25 @@ exports.getRoomByRoomName = async (req, res) => {
 //@access   Private
 exports.updateRoom = async (req, res) => {
   try {
+    // req.body.student.length != 0 checks if there is any student provided for update in room
     if(req.body.student.length != 0){
+      // For example req.body.student = ["073BEX437"] 
       // Promise.all resolves all the remaining promises so that you won't get promise object as return
-      const students = await Promise.all(req.body.student.map(async(userName)=> await Student.findOne({username: userName})));
-      if(students.includes(null)){
-        return res.status(400).json({success: false, msg: "The student(s) doesn't exist!"});
+      const students = await Promise.all(req.body.student.map(async(stdRoll)=> await Student.findOne({rollNo: stdRoll})));
+      if(students.includes(null) || students.includes(undefined)){
+        return res.status(400).json({msg: "The student(s) doesn't exist!"});
       }
-      const studentIds = students.map((student)=>student._id);
-      const result = await Room.findOne({student:studentIds});
-      console.log(result);
-      if(result){
-        return res.status(400).json({success:false, msg: "The student(s) is already assigned!"});
-      }
-      // to check if the student to be added is already assigned to the room
-      const isAssignedToRoom = students.map(studentObj => {
-        //checking if the room property exist in that student
-        // if there is room property the student is already assigned to the room
-        if(typeof studentObj.room !== undefined){
-          return true;
-        }
-        return false;
-      })
-      if(isAssignedToRoom.includes(true)){
-        return res.status(400).json({msg:"The student(s) is already assigned!"})
+
+      //determining the value of room field in student's record
+      var studentsRoom = students.map((std) => std.room);
+
+      // checking if the room is defined for that particular student
+      if(!studentsRoom.includes(undefined)){
+        return res.status(400).json({msg:"The student(s) is already assigned to a room"})
       }
       // IF not assigned continued to add the requested student to the room
       req.body.student = students.map((student)=>student._id) ;
     }
-
-
     const updatedRoom = await Room.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
@@ -129,7 +114,7 @@ exports.updateRoom = async (req, res) => {
       });
     }
     // setting the "room" field in the student database
-    await Promise.all(req.body.student.map(async(student_id)=>await Student.findByIdAndUpdate(student_id,updatedRoom._id)));
+    await Promise.all(req.body.student.map(async(student_id)=>await Student.findByIdAndUpdate(student_id,{room:updatedRoom._id})));
     res.status(200).json({
       data: updatedRoom,
     });
@@ -149,11 +134,10 @@ exports.deleteRoom = async(req,res)=>{
     }
     // after deleting the room we should deleted that room from student database
     const students = await Student.find({room:req.params.id});
-    students.map((std)=>{
+    students.map(async(std)=>{
       // unsetting the room field
-      var saveStudent = new Student(students);
-      saveStudent.room = undefined;
-      saveStudent.save();
+      std.room = undefined;
+        await std.save();
     })
 
     res.status(200).json({msg:"Room deleted."});
@@ -173,7 +157,7 @@ exports.filterRooms = async(req,res)=>{
       if(rooms.length == 0){
         res.status(400).json({msg:"No rooms found!"});
       }
-      res.status(200).json({success:true,data:rooms});
+      res.status(200).json({data:rooms});
     }
   } catch (error) {
     console.log(error.message);

@@ -3,7 +3,7 @@ const authorize = require("../middleware/authorize");
 const isAdmin = require("../middleware/isAdmin");
 const {
   getStudents,
-  getStudentById,
+  getStudentByRollNo,
   //getStudentsByRoomId,
   createStudent,
   updateStudent,
@@ -14,7 +14,7 @@ const {
 router = express.Router();
 
 router.get("/students", getStudents);
-router.get("/students/:id", getStudentById);
+router.get("/students/:rollno", getStudentByRollNo);
 router.get("/filterstudents",getStudentByFilter);
 //router.get("/category/:category", getStudentsByRoomId);
 router.post("/students", [authorize], createStudent);

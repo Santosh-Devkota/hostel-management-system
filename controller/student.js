@@ -12,7 +12,6 @@ exports.getStudents = async (req, res) => {
   .limit(10);
   // remember find() always gives array && it gives empty array if no data exits
   res.status(200).json({
-    success: true,
     data: result,
   });
 };
@@ -20,16 +19,14 @@ exports.getStudents = async (req, res) => {
 //@des      Get single the Student
 //@route    GET /students/:id
 //@access   Public
-exports.getStudentById = async (req, res) => {
-  const result = await Student.findOne({username:req.params.id});
+exports.getStudentByRollNo = async (req, res) => {
+  const result = await Student.findOne({rollNo:req.params.rollno});
   if (!result) {
    return res.status(404).json({
-      success: true,
       msg: "not found bitch",
     });
   }
   res.status(200).json({
-    success: true,
     data: result,
   });
 };
@@ -49,7 +46,7 @@ exports.getStudentByFilter = async(req,res)=>{
       if(student.length ==0){
         res.status(404).json({msg:"No such records"});
       }
-      res.status(200).json({success:true,data:student});
+      res.status(200).json({data:student});
   } catch (error) {
     res.status(404).json({});
   }
@@ -66,6 +63,7 @@ exports.createStudent = async (req, res) => {
         if(!room){
           return res.status(404).json({msg:"The room doesn't exist"})
         }
+
         /// check if the room is already assigned to the user
         req.body.room = room._id;
     }
@@ -74,15 +72,15 @@ exports.createStudent = async (req, res) => {
       numbers: true
   });
   //gotcha
-  const result  = await Student.findOne({username:req.body.username});
+  const result  = await Student.findOne({rollNo:req.body.rollno});
   if(result){
-    return res.status(400).json({success:false, msg: "The user already exists!"});
+    return res.status(400).json({msg: "The student already exists!"});
    }
     const student = await Student.create(req.body);
-    res.status(200).json({success:true,data:student});
+    res.status(200).json({data:student});
   } catch (err) {
     console.log(err.message);
-    res.status(400).json({success:false, msg:"Unable to create user!"});
+    res.status(400).json({msg:"Unable to create student!"});
   }
 };
 
@@ -95,22 +93,19 @@ exports.updateStudent = async (req, res) => {
       new: true,
       runValidators: true,
     });
-    console.log(result);
     if (!result) {
       res.status(404).json({
-        success: false,
         msg: `Student with id:${req.params.id} not found!`,
       });
     }
     res.status(200).json({
-      success: true,
+      msg:"Updated Successfully",
       data: result,
     });
   } catch (error) {
     console.log(error.message);
     res.status(404).json({
-      success: false,
-      msg: `Question with id:${req.params.id} not found!`,
+      msg: "Unable to delete the student!",
     });
   }
 };
@@ -127,14 +122,12 @@ exports.deleteStudent = async (req, res) => {
     // const delStd_id = std._id;
     const result = await Student.findOneAndDelete(req.params.id);
     // if (!result || !std) {
-    //   res.status(404).json({
-    //     success: false,
+    //   res.status(404).json({,
     //     msg: `Student with id:${req.params.id} not found!`,
     //   });
     // }
     if (!result) {
       res.status(404).json({
-        success: false,
         msg: `Student with id:${req.params.id} not found!`,
       });
     }
@@ -147,17 +140,14 @@ exports.deleteStudent = async (req, res) => {
     //   new:true,
     //   runValidators:true
     // })
-
     res.status(200).json({
-      success: true,
-      data: result,
+      msg:"Student deleted Successfully!"
     });
 
   } catch (error) {
     console.log(error.message);
     res.status(404).json({
-      success: false,
-      msg: `Question with id:${req.params.id} not found!`,
+      msg: "Couldn't delete the student!",
     });
   }
 };

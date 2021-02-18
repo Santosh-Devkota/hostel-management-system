@@ -10,12 +10,10 @@ const {
 
 router = express.Router();
 
-router.get("/", getRooms);
-router.get("/:roomname", getRoomByRoomName);
+router.get("/",authorize, getRooms);
+router.get("/:roomname",authorize, getRoomByRoomName);
 router.post("/",authorize, createRoom);
 router.put("/:id",authorize, updateRoom);
 router.delete("/:id",authorize, deleteRoom);
-
-
 
 module.exports = router;

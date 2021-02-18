@@ -61,36 +61,36 @@ staffSchema.methods.generateAuthToken = function () {
   
 };
 
-staffSchema.methods.getResetPasswordToken = function () {
-  //Generating Token
-  const resetToken = crypto.randomBytes(20).toString("hex");
+// staffSchema.methods.getResetPasswordToken = function () {
+//   //Generating Token
+//   const resetToken = crypto.randomBytes(20).toString("hex");
 
-  //Hash token and set to resetPasswordToken field of user database
-  this.resetPasswordToken = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
+//   //Hash token and set to resetPasswordToken field of user database
+//   this.resetPasswordToken = crypto
+//     .createHash("sha256")
+//     .update(resetToken)
+//     .digest("hex");
 
-  //set expire time for reset token
-  if (user.isVerified) {
-    this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
-  }
-  return resetToken;
-};
-staffSchema.methods.getEmailConfirmationToken = function () {
-  //Generating Token
-  const confirmToken = crypto.randomBytes(20).toString("hex");
+//   //set expire time for reset token
+//   if (user.isVerified) {
+//     this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+//   }
+//   return resetToken;
+// };
+// staffSchema.methods.getEmailConfirmationToken = function () {
+//   //Generating Token
+//   const confirmToken = crypto.randomBytes(20).toString("hex");
 
-  //Hash token and set to resetPasswordToken field of user database
-  this.emailConfirmToken = crypto
-    .createHash("sha256")
-    .update(confirmToken)
-    .digest("hex");
+//   //Hash token and set to resetPasswordToken field of user database
+//   this.emailConfirmToken = crypto
+//     .createHash("sha256")
+//     .update(confirmToken)
+//     .digest("hex");
 
-  //set expire time for reset token
-  this.emailConfirmExpire = Date.now() + 24 * 60 * 60 * 1000;
+//   //set expire time for reset token
+//   this.emailConfirmExpire = Date.now() + 24 * 60 * 60 * 1000;
 
-  return confirmToken;
-};
+//   return confirmToken;
+// };
 
 module.exports = mongoose.model("Staffs", staffSchema);

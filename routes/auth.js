@@ -7,7 +7,7 @@ const {
   //getStudentById,
   //getStudentsByRoomId,
   registerStaff,
-  registerStudent,
+  // registerStudent,
   loginUser,
   currentUser,
   forgotPassword,
@@ -21,7 +21,7 @@ router = express.Router();
 //router.get("/", getUsers);
 //router.get("/:id", getStudentById);
 //router.get("/category/:category", getStudentsByRoomId);
-router.post("/register/student",[authorize], registerStudent);
+// router.post("/register/student",[authorize], registerStudent);
 router.post("/register/staff",registerStaff)
 router.post("/login", loginUser);
 router.get("/me", [authorize], currentUser);

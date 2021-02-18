@@ -42,38 +42,38 @@ exports.registerStaff = async (req, res, next) => {
 //@des      Register new student
 //@route    POST /auth/register/student
 //@access   private
-exports.registerStudent = async (req, res, next) => {
-  try {
-    const student = await Student.findOne({ username: req.body.username });
-    if(student){
-      return res.status(400).json({msg:"User already exists"});
-    }
-    const newStudent = new Student({
-      username: req.body.username,
-      email: req.body.email,
-    });
-    var password = generator.generate({
-      length: 10,
-      numbers: true
-  });
-  newStudent.isPasswordChanged = false;
-  newStudent.password = password;
-  newStudent.fullName = req.body.fullName;
-  newStudent.faculty = req.body.faculty;
-  newStudent.dob = req.body.dob;
-  newStudent.address = req.body.address;
-  newStudent.contact = req.body.contact;
-  newStudent.batch = req.body.batch;
-  console.log(newStudent);
-    await newStudent.save();
-    return res.status(200).json({
-      msg: "Student created successfully!"
-    });
-  } catch (error) {
-    console.log(error.message);
-    res.status(400).json({msg:"Unable to create the student"});
-  }
-};
+// exports.registerStudent = async (req, res, next) => {
+//   try {
+//     const student = await Student.findOne({ username: req.body.username });
+//     if(student){
+//       return res.status(400).json({msg:"User already exists"});
+//     }
+//     const newStudent = new Student({
+//       username: req.body.username,
+//       email: req.body.email,
+//     });
+//     var password = generator.generate({
+//       length: 10,
+//       numbers: true
+//   });
+//   newStudent.isPasswordChanged = false;
+//   newStudent.password = password;
+//   newStudent.fullName = req.body.fullName;
+//   newStudent.faculty = req.body.faculty;
+//   newStudent.dob = req.body.dob;
+//   newStudent.address = req.body.address;
+//   newStudent.contact = req.body.contact;
+//   newStudent.batch = req.body.batch;
+//   console.log(newStudent);
+//     await newStudent.save();
+//     return res.status(200).json({
+//       msg: "Student created successfully!"
+//     });
+//   } catch (error) {
+//     console.log(error.message);
+//     res.status(400).json({msg:"Unable to create the student"});
+//   }
+// };
 
  
 
@@ -86,7 +86,7 @@ exports.loginUser = async (req, res, next) => {
     
     const staff = await Staffs.findOne({username:req.body.username});
     if(!staff){
-      const student = await Student.findOne({username:req.body.username});
+      const student = await Student.findOne({rollNo:req.body.username});
       if(!student){
         res.status(400).json({msg:"Invalid username or password!"});
       }
@@ -111,11 +111,11 @@ exports.loginUser = async (req, res, next) => {
     //to provide role  as a payload to the token, assiging this value
     user.role = role;
     const token = user.generateAuthToken();
-    res.status(200).json({success:true,data:{token:token}});
+    res.status(200).json({data:{token:token}});
     
   }
   else if(role == "student"){
-    const student = await Student.findOne({username: req.body.username}).select("+password");
+    const student = await Student.findOne({rollNo: req.body.username}).select("+password");
     if(!student.isPasswordChanged){
       if(req.body.password == student.password){
         // means password matches to the unchanged password
@@ -128,20 +128,19 @@ exports.loginUser = async (req, res, next) => {
         })
       }
     }
-    // else{
-    //   const validPassword = await bcrypt.compare(
-    //     req.body.password,
-    //     user.password
-    //   );
-    //   if(!validPassword){
-    //     return res.status(400).json({
-    //       msg:"Invalid username or password"
-    //     })
-    //   }
-    //   const token = user.generateAuthToken();
-    //   console.log(token);
-    //   res.status(200).json({token:token});
-    // }
+    else{
+      const validPassword = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
+      if(!validPassword){
+        return res.status(400).json({
+          msg:"Invalid username or password"
+        })
+      }
+      const token = user.generateAuthToken();
+      res.status(200).json({data:{token:token}});
+    }
   }
 };
 
@@ -152,7 +151,6 @@ exports.loginUser = async (req, res, next) => {
 exports.currentUser = async (req, res, next) => {
   const user = await Staffs.findById(req.user._id);
   res.status(200).json({
-    success: true,
     msg: user,
   });
 };
@@ -176,7 +174,7 @@ exports.resetPassword = async(req,res)=>{
       
       const salt = await bcrypt.genSalt(10);
       pw = await bcrypt.hash(req.body.newpassword,salt);
-      const user = await Student.findOneAndUpdate({username:req.body.username},{password:pw,isPasswordChanged:true},{new:true});
+      const user = await Student.findOneAndUpdate({rollNo:req.body.username},{password:pw,isPasswordChanged:true},{new:true});
       if(!user){
         return res.status(400).json({msg:"Unable to change the password!"});
       }
@@ -225,7 +223,6 @@ async function sendTokenInCookieResponse(user, statusCode, res) {
 
   //sending token under the name "token"
   res.status(statusCode).cookie("token", token, cookieOption).json({
-    success: true,
     token: token,
   });
 }
@@ -259,7 +256,6 @@ exports.forgotPassword = async (req, res, next) => {
   try {
     await sendEmail(Options);
     res.status(200).json({
-      success: true,
       msg: "Email send successfully",
     });
   } catch (error) {
@@ -326,7 +322,6 @@ exports.confirmEmail = async (req, res, next) => {
   await user.save();
 
   return res.status(200).json({
-    success: false,
     msg: "Email successfully verified",
   });
 };

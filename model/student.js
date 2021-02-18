@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const studentSchema = new mongoose.Schema(
   {
-    username:{
+    rollNo:{
       type:String,
       required:true,
       minlength:5,
