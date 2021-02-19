@@ -37,12 +37,12 @@ exports.getStudentByRollNo = async (req, res) => {
 //@access private 
 exports.getStudentByFilter = async(req,res)=>{
   try {
-    const {block,batch,faculty} = req.query;
+    const {batch,faculty} = req.query;
     let query = {};
-   // if(block) {query.block = req.query.block};
+  //  if(block) {query.block = req.query.block};
     if(batch) {query.batch = req.query.batch};
     if(faculty) {query.faculty = req.query.faculty};
-    const student = await Student.find(query) 
+    const student = await Student.find(query).populate({path:"room",match:{block:req.query.block}});
       if(student.length ==0){
         res.status(404).json({msg:"No such records"});
       }
@@ -115,12 +115,6 @@ exports.updateStudent = async (req, res) => {
 //@access   Private
 exports.deleteStudent = async (req, res) => {
   try {
-    //find the student record and determining the "room_id";
-
-    // const std = await Student.findById(req.params.id);
-    // const room_id = std.room;
-    // const delStd_id = std._id;
-
     const result = await Student.findOneAndDelete(req.params.id);
     if(result){
       const operationResult = await Room.updateOne({students:req.params.id},{$pull:{students:req.params.id}})

@@ -131,6 +131,7 @@ exports.updateRoom = async (req, res) => {
     // setting the "room" field in the student database
     await Promise.all(req.body.students.map(async(student_id)=>await Student.findByIdAndUpdate(student_id,{room:updatedRoom._id})));
     res.status(200).json({
+      msg:"Room Update successful!",
       data: updatedRoom,
     });
   } catch (error) {

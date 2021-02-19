@@ -2,7 +2,6 @@ const express = require("express");
 const dotenv = require("dotenv");
 const studentRouter = require("./routes/student");
 const roomRouter = require("./routes/room");
-const staticRouter = require("./routes/static/staticRoutes");
 const morgan = require("morgan");
 const connectDb = require("./config/db");
 const erroHandler = require("./middleware/errorHandler");
@@ -10,6 +9,9 @@ const authRouter = require("./routes/auth");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const noticeRouter = require("./routes/notice");
+const messFoodRouter = require("./routes/MessRoute/messFood");
+const messDailyConsumptionRouter = require("./routes/MessRoute/dailyConsumption");
+const messPaymentRouter = require("./routes/MessRoute/messPayment");
 //load env variables
 dotenv.config({ path: "./config/config.env" });
 
@@ -32,6 +34,15 @@ if (process.env.JWT_SECRETKEY == undefined) {
 app.use("/auth", authRouter);
 //Mounting the notices routers
 app.use("/",noticeRouter);
+
+//Mounting the messfood route
+app.use("/",messFoodRouter);
+
+//Mounting mess Daily consumption route
+app.use("/",messDailyConsumptionRouter);
+
+//Mounting mess Payments route 
+app.use("/",messPaymentRouter)
 //Mounting the studentDatabase routers
 app.use("/", studentRouter);
 //Mounting the roomDatabase routers

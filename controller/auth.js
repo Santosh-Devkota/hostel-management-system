@@ -24,9 +24,15 @@ exports.registerStaff = async (req, res, next) => {
       username: req.body.username,
       email: req.body.email,
       password: req.body.password,
-      role : req.body.role
+      
     });
-    // newStaff.role = "staff";
+    if(!req.body.role)
+    {
+      newStaff.role = "student";
+    } else
+    {
+      newStaff.role = req.body.role;
+    }
       const salt = await bcrypt.genSalt(10);
      newStaff.password = await bcrypt.hash(newStaff.password, salt);
     await newStaff.save();

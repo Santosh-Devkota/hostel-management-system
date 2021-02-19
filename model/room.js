@@ -5,6 +5,7 @@ const roomSchema = new mongoose.Schema({
   roomName:{
     type:String,
     required:true,
+    unique:true
   },
   students: [{
     type: Schema.Types.ObjectId,

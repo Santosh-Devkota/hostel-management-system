@@ -8,6 +8,7 @@ const staffSchema = new mongoose.Schema({
     type: String,
     minlength: 5,
     maxlength: 50,
+    unique:true
   },
   email: {
     type: String,
