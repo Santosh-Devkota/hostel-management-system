@@ -1,4 +1,4 @@
-const Staff = require("../model/staff");
+// const Staff = require("../model/staff");
 
 const isAdmin = async (req, res, next) =>  {
   if(req.user.role != "admin"){

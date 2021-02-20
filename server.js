@@ -4,7 +4,7 @@ const studentRouter = require("./routes/student");
 const roomRouter = require("./routes/room");
 const morgan = require("morgan");
 const connectDb = require("./config/db");
-const erroHandler = require("./middleware/errorHandler");
+// const erroHandler = require("./middleware/errorHandler");
 const authRouter = require("./routes/auth");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -12,6 +12,7 @@ const noticeRouter = require("./routes/notice");
 const messFoodRouter = require("./routes/MessRoute/messFood");
 const messDailyConsumptionRouter = require("./routes/MessRoute/dailyConsumption");
 const messPaymentRouter = require("./routes/MessRoute/messPayment");
+const studentQueryRouter = require("./routes/query");
 //load env variables
 dotenv.config({ path: "./config/config.env" });
 
@@ -35,6 +36,9 @@ app.use("/auth", authRouter);
 //Mounting the notices routers
 app.use("/",noticeRouter);
 
+//Mounting student query routers
+app.use("/",studentQueryRouter);
+
 //Mounting the messfood route
 app.use("/",messFoodRouter);
 
@@ -48,7 +52,7 @@ app.use("/", studentRouter);
 //Mounting the roomDatabase routers
 app.use("/rooms", roomRouter);
 //error handling middleware
-app.use(erroHandler);
+// app.use(erroHandler);
 //launching the server
 const PORT = process.env.PORT || 5000;
 app.listen(
@@ -57,5 +61,4 @@ app.listen(
     `Listening with Env:${process.env.DEV_ENV} on port ${process.env.PORT}...`
   )
 );
-// mongodb://localhost/a
 

@@ -1,8 +1,10 @@
 const express = require("express");
 const Router = express.Router()
-const {getNotice, postNotice} = require("../controller/notice");
+const {getLatestNotice, postNotice, updateNotice, deleteNotice} = require("../controller/notice");
 
-Router.get("/notice",getNotice);
-Router.post("/notice",postNotice);
+Router.get("/notice/search/latest",getLatestNotice);
+Router.post("/notice/add",postNotice);
+Router.put("/notice/update/:id",updateNotice);
+Router.delete("/notice/delete/:id",deleteNotice);
 
 module.exports = Router

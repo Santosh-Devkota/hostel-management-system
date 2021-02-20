@@ -76,13 +76,4 @@ studentSchema.methods.generateAuthToken = function () {
   
 };
 
-// function validateStudent(student) {
-//   const schema = Joi.object({
-//     _id: Joi.string().required().min(5),
-//     studentName: Joi.string().required().min(5).max(30),
-//     address: Joi.string().required().min(5),
-//   });
-
-//   return schema.validate(student);
-// }
 module.exports = mongoose.model("Student", studentSchema);
