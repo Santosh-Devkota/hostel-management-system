@@ -1,3 +1,4 @@
+//mdfldjfdlkfjdkfld
 const Query = require("../model/query");
 
 //@route POST /studentquery/add
