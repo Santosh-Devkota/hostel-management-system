@@ -63,19 +63,19 @@ exports.createStudent = async (req, res) => {
         if(!room){
           return res.status(404).json({msg:"The room doesn't exist"})
         }
-
         /// check if the room is already assigned to the user
         req.body.room = room._id;
     }
     req.body.password = generator.generate({
-      length: 10,
+      length: process.env.PASSWORD_SIZE,
       numbers: true
   });
   //gotcha
   const result  = await Student.findOne({rollNo:req.body.rollno});
-  if(result){
-    return res.status(400).json({msg: "The student already exists!"});
-   }
+    if(result){
+      return res.status(400).json({msg: "The student already exists!"});
+    }
+    req.body.faculty = req.body.faculty.toUpperCase(); 
     const student = await Student.create(req.body);
     res.status(200).json({data:student});
   } catch (err) {

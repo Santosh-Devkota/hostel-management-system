@@ -30,6 +30,10 @@ const staffSchema = new mongoose.Schema({
     enum:['admin','hostelstaff','student',"messstaff"],
     default:'hostelstaff'
   },
+  isPasswordChanged:{
+    type:Boolean,
+    default:false
+  }
   // resetPasswordToken: String,
   // resetPasswordExpire: Date,
   // emailConfirmToken: String,
@@ -48,7 +52,7 @@ const staffSchema = new mongoose.Schema({
 
 staffSchema.methods.generateAuthToken = function () {
   try {
-    const token = jwt.sign({_id:this._id,role:this.role,email:this.email},
+    const token = jwt.sign({_id:this._id,role:this.role,email:this.email,isPasswordChanged:this.isPasswordChanged},
       process.env.JWT_SECRETKEY,
       {
         expiresIn: 86400, //the token expires in 24hr

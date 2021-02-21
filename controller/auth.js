@@ -15,16 +15,15 @@ const student = require("../model/student");
 //@access private
 exports.registerStaff = async (req, res, next) => {
   try {
-    const user = await Staffs.findOne({ username:req.body.username });
-    if(user){
-      return res.status(400).json({msg:"User already exists"});
+    const staff = await Staffs.findOne({ username:req.body.username });
+    if(staff){
+      return res.status(400).json({msg:"Staff already exists"});
     }
 
     const newStaff = new Staffs({
       username: req.body.username,
       email: req.body.email,
-      password: req.body.password,
-      
+      isPasswordChanged:false
     });
     if(!req.body.role)
     {
@@ -33,8 +32,11 @@ exports.registerStaff = async (req, res, next) => {
     {
       newStaff.role = req.body.role;
     }
-      const salt = await bcrypt.genSalt(10);
-     newStaff.password = await bcrypt.hash(newStaff.password, salt);
+        password = generator.generate({
+          length: process.env.PASSWORD_SIZE,
+          numbers: true
+      });
+    newStaff.password = password;
     await newStaff.save();
     return res.status(200).json({
       msg:"User created successfully!"
@@ -66,55 +68,88 @@ exports.loginUser = async (req, res, next) => {
     console.log(error.message);
     res.status(400).json({msg:"Invalid username or pw"});
   }
+
+  ////////////////////////////////////
   if(role == "admin" || role == "hostelstaff" || role == "meshstaff"){
-    const user = await Staffs.findOne({username:req.body.username}).select("+password");
-    const validPassword = await bcrypt.compare(
-      req.body.password,
-      user.password
-    );
-    if(!validPassword){
-      return res.status(400).json({
-        msg:"Invalid username or password"
-      })
-    }
-    //to provide role  as a payload to the token, assiging this value
-    user.role = role;
-    const token = user.generateAuthToken();
-    res.status(200).json({data:{token:token}});
-  }
-  else if(role == "student"){
-    try {
-      const student = await Student.findOne({rollNo: req.body.username}).select("+password");
-    if(!student.isPasswordChanged){
-      if(req.body.password == student.password){
+    const staff = await Staffs.findOne({username:req.body.username}).select("+password");
+    if(!staff.isPasswordChanged){
+      if(req.body.password == staff.password){
         // means password matches to the unchanged password
-        const token = student.generateAuthToken();
+        const token = staff.generateAuthToken();
         return res.status(200).json({data:{token:token}});
       }
       res.status(400).json({
         msg:"Invalid username or password"
       })
-    }
-    else if(student.isPasswordChanged){
-      const user = await Student.findOne({rollNo:req.body.username}).select("+password");
+    } else if (staff.isPasswordChanged){
       const validPassword = await bcrypt.compare(
         req.body.password,
-        user.password
+        staff.password
       );
       if(!validPassword){
         return res.status(400).json({
           msg:"Invalid username or password"
         })
       }
-      const token = user.generateAuthToken();
+      const token = staff.generateAuthToken();
       res.status(200).json({data:{token:token}});
     }
+
+  }
+  else if(role == "student"){
+    try {
+        const student = await Student.findOne({rollNo: req.body.username}).select("+password");
+          if(!student.isPasswordChanged){
+            if(req.body.password == student.password){
+              // means password matches to the unchanged password
+              const token = student.generateAuthToken();
+              return res.status(200).json({data:{token:token}});
+            }
+            res.status(400).json({
+              msg:"Invalid username or password"
+            })
+          }
+          else if(student.isPasswordChanged){
+            const user = await Student.findOne({rollNo:req.body.username}).select("+password");
+            const validPassword = await bcrypt.compare(
+              req.body.password,
+              user.password
+            );
+            if(!validPassword){
+              return res.status(400).json({
+                msg:"Invalid username or password"
+              })
+            }
+            const token = user.generateAuthToken();
+            res.status(200).json({data:{token:token}});
+          }
     } catch (error) {
       console.log(error.message);
       res.status(400).json({msg:"Unable to login!"})
     }
   }
 };
+
+//route GET /auth/logindetails?query....
+//role = admin/meshstaff/student
+exports.getLoginDetails = async(req,res)=>{
+
+  try {
+    var users;
+    if(req.query.role === "student"){
+      users = await Student.find({password:{$gte:process.env.PASSWORD_SIZE}}).select("+password");
+    }else{
+      users = await Staffs.find({password:{$gte:process.env.PASSWORD_SIZE}}).select("+password");
+    }
+    if(!users){
+      return res.status(404).json({msg:"No users found!"});
+    }
+    res.status(200).json({data:users});
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({msg:"Unable to search the users!"})
+  }
+}
 
 
 //@des change student password by student
@@ -148,21 +183,32 @@ exports.loginUser = async (req, res, next) => {
 
 //@route /auth/initstdpasswordreset
 //@des To reset the password for first time by the student
-exports.initialStdPasswordReset = async(req,res)=>{
+exports.initialPasswordReset = async(req,res)=>{
         try {
-          const student = await Student.findById(req.user._id);
-          student.isPasswordChanged = true;
-          student.password = password;
-          await student.save();
+          const salt = await bcrypt.genSalt(10);
+          password = await bcrypt.hash(req.body.newpassword,salt);
+          if(req.user._id === student){
+            const student = await Student.findById(req.user._id);
+            student.isPasswordChanged = true;
+            student.password = password;
+            await student.save();
+          } else{
+            const staff = await Staffs.findById(req.user._id);
+            staff.isPasswordChanged = true;
+            staff.password = password;
+            await staff.save();
+          }
+          
           res.status(200).json({msg:"Password reset successful!"})
         } catch (error) {
           console.log(error.message);
-          res.status(404).json({msg:"Unable to reset the student password"})
+          res.status(404).json({msg:"Unable to reset the password"})
         }
 }
 
 //@route /auth/resetpassword/:id
 //des To reset the password of any staff/students
+//Des only admins can reset the password
 exports.resetPassword = async(req,res)=>{
   try {
     const salt = await bcrypt.genSalt(10);

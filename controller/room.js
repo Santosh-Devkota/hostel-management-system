@@ -67,6 +67,7 @@ exports.getRooms = async (req, res) => {
   }
 };
 
+//@rout GET /rooms/namesearch/:roomname
 exports.getRoomByRoomName = async (req, res) => {
   try {
     const result = await Room.findOne({roomName:req.params.roomname}).populate("student","rollNo fullName");
@@ -81,9 +82,9 @@ exports.getRoomByRoomName = async (req, res) => {
   }
 };
 
+//@route GET /rooms/blocksearch/:block
 exports.getRoomsByBlock = async(req,res)=>{
   try {
-    
     const rooms = await Room.find({block:req.params.block})
     if(rooms.length === 0){
       return res.status(404).json({msg:"No rooms found!"});
@@ -92,6 +93,25 @@ exports.getRoomsByBlock = async(req,res)=>{
   } catch (error) {
     console.log(error.message);
     res.status(400).json({msg:"Unable to show rooms"})
+  }
+}
+
+//@route GET /rooms/vacant?query....
+exports.getVacantRooms = async(req,res)=>{
+  try {
+    var rooms;
+    if(req.query.block === undefined){
+      rooms = await Room.find({$expr: {$lt: [{$size: "$students"}, process.env.ROOM_SIZE]}})
+    } else{
+      rooms = await Room.find({$expr: {$lt: [{$size: "$students"}, process.env.ROOM_SIZE]}}).where("block").equals(req.query.block);
+    }
+    if(!rooms){
+      return res.status(404).json({msg:"No rooms found!"});
+    }
+    res.status(200).json({data:rooms});
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({msg:"Unable to find the rooms!"});
   }
 }
 

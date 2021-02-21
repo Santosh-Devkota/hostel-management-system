@@ -17,6 +17,8 @@ const studentSchema = new mongoose.Schema(
     },
     password:{
       type:String,
+      min:5,
+      select:false
     },
     isPasswordChanged:{
       type: Boolean,

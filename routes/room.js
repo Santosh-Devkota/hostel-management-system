@@ -4,6 +4,7 @@ const {
   getRooms,
   getRoomByRoomName,
   getRoomsByBlock,
+  getVacantRooms,
   createRoom,
   updateRoom,
   deleteRoom,
@@ -14,6 +15,7 @@ router = express.Router();
 router.get("/",authorize, getRooms);
 router.get("/namesearch/:roomname",authorize, getRoomByRoomName);
 router.get("/blocksearch/:block",authorize, getRoomsByBlock);
+router.get("/vacant",authorize,getVacantRooms);
 router.post("/",authorize, createRoom);
 router.put("/:id",authorize, updateRoom);
 router.delete("/:id",authorize, deleteRoom);
