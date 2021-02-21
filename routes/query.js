@@ -1,6 +1,6 @@
 const express = require("express");
 const Router = express.Router()
-const {getLatestQuery,getQuery, addNewQuery, updateQuery, deleteQuery} = require("../controller/Query");
+const {getLatestQuery,getQuery, addNewQuery, updateQuery, deleteQuery} = require("../controller/query");
 
 Router.get("/studentquery/search/latest",getLatestQuery);
 Router.get("/studentquery/search",getQuery); // search Query based on query parameter
