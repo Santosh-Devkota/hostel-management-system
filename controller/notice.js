@@ -1,9 +1,34 @@
 const Notice = require("../model/notice");
+const Staffs = require("../model/staff");
 
-//@route GET /notice/search/latest
+//@route GET /notice/search/latest?noticefrom=....
 exports.getLatestNotice = async (req, res, next) => {
   try {
-    const result = await Notice.find().sort({"_id":-1});
+    if((req.query.noticefrom == "hostel")){
+      req.body.roles = ["admin","hostelstaff"]
+    }
+    if(req.query.noticefrom == "mess"){
+      req.body.roles= ["messstaff"];
+    }
+    
+    const staffIdList = await Staffs.find({role:req.body.roles}).select("_id");
+    const result = await Notice.find({staffId:{$in:staffIdList}}).sort({"_id":-1});
+    // const result = await Notice.aggregate([{
+      //populate({path:"staffId",match:{role:req.body.roles}})
+    //   $lookup: {
+    //     from: 'staffs',
+    //     localField:"staffId",
+    //     foreignField:"_id",
+    //     as: 'Staffs',
+    //     // let: { CompanyID: '$CompanyID' },
+    //     // pipeline: [
+    //     //   {
+    //     //     $match: {
+    //     //       $expr:{ $in: ['$Staffs.role', req.body.roles] }
+    //     //     }
+    //     //   }]
+    //     }},
+    //     { $sort : { date:-1 }}])
     if (result.length === 0) {
       return res.status(404).json({msg:"No notice(s) to show!"})
     }
@@ -20,6 +45,7 @@ exports.getLatestNotice = async (req, res, next) => {
 //@route Post /notice/add
 exports.postNotice = async (req, res, next) => {
   try {
+    req.body.staffId = req.user._id;
     const result = await Notice.create(req.body);
     if(!result){
       return res.status(400).json({msg:"Couldn't add the notice!"})

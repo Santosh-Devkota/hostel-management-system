@@ -13,6 +13,7 @@ const messFoodRouter = require("./routes/MessRoute/messFood");
 const messDailyConsumptionRouter = require("./routes/MessRoute/dailyConsumption");
 const messPaymentRouter = require("./routes/MessRoute/messPayment");
 const studentQueryRouter = require("./routes/query");
+const messageRouter = require("./routes/message");
 //load env variables
 dotenv.config({ path: "./config/config.env" });
 
@@ -47,6 +48,9 @@ app.use("/",messDailyConsumptionRouter);
 
 //Mounting mess Payments route 
 app.use("/",messPaymentRouter)
+
+// Mounting message router 
+app.use("/",messageRouter);
 //Mounting the studentDatabase routers
 app.use("/", studentRouter);
 //Mounting the roomDatabase routers

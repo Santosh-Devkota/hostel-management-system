@@ -8,4 +8,4 @@ Router.post("/studentquery/add",addNewQuery);
 Router.put("/studentquery/update/:id",updateQuery);
 Router.delete("/studentquery/delete/:id",deleteQuery);
 
-module.exports = Router
+module.exports = Router;

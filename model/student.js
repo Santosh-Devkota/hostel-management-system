@@ -60,12 +60,16 @@ const studentSchema = new mongoose.Schema(
     room: {
       type:Schema.Types.ObjectId,
       ref:"Room"
+    },
+    isMesh:{
+      type:Boolean,
+      default:false
     }
   }
 );
 studentSchema.methods.generateAuthToken = function () {
   try {
-    const token = jwt.sign({_id:this._id,role:this.role,username:this.username,fullName:this.fullName,email:this.email},
+    const token = jwt.sign({_id:this._id,role:this.role,username:this.username,fullName:this.fullName,email:this.email,isPasswordChanged:this.isPasswordChanged},
       process.env.JWT_SECRETKEY,
       {
         expiresIn: 86400, //the token expires in 24hr
@@ -75,7 +79,6 @@ studentSchema.methods.generateAuthToken = function () {
   } catch (error) {
     console.log(error)
   }
-  
 };
 
 module.exports = mongoose.model("Student", studentSchema);

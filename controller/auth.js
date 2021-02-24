@@ -70,7 +70,7 @@ exports.loginUser = async (req, res, next) => {
   }
 
   ////////////////////////////////////
-  if(role == "admin" || role == "hostelstaff" || role == "meshstaff"){
+  if(role == "admin" || role == "hostelstaff" || role == "messstaff"){
     const staff = await Staffs.findOne({username:req.body.username}).select("+password");
     if(!staff.isPasswordChanged){
       if(req.body.password == staff.password){
@@ -91,8 +91,9 @@ exports.loginUser = async (req, res, next) => {
           msg:"Invalid username or password"
         })
       }
+      staff.password = undefined;
       const token = staff.generateAuthToken();
-      res.status(200).json({data:{token:token}});
+      res.status(200).json({data:{user:staff,token:token}});
     }
 
   }
@@ -103,7 +104,7 @@ exports.loginUser = async (req, res, next) => {
             if(req.body.password == student.password){
               // means password matches to the unchanged password
               const token = student.generateAuthToken();
-              return res.status(200).json({data:{token:token}});
+              return res.status(200).json({user:user,data:{token:token}});
             }
             res.status(400).json({
               msg:"Invalid username or password"
@@ -120,8 +121,9 @@ exports.loginUser = async (req, res, next) => {
                 msg:"Invalid username or password"
               })
             }
+            user.password = undefined;
             const token = user.generateAuthToken();
-            res.status(200).json({data:{token:token}});
+            res.status(200).json({user:user,data:{token:token}});
           }
     } catch (error) {
       console.log(error.message);
