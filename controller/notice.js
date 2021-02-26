@@ -10,7 +10,6 @@ exports.getLatestNotice = async (req, res, next) => {
     if(req.query.noticefrom == "mess"){
       req.body.roles= ["messstaff"];
     }
-    
     const staffIdList = await Staffs.find({role:req.body.roles}).select("_id");
     const result = await Notice.find({staffId:{$in:staffIdList}}).sort({"_id":-1});
     // const result = await Notice.aggregate([{

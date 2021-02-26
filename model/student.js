@@ -61,9 +61,12 @@ const studentSchema = new mongoose.Schema(
       type:Schema.Types.ObjectId,
       ref:"Room"
     },
-    isMesh:{
+    isInMess:{
       type:Boolean,
       default:false
+    },
+    imageUrl:{
+      type:String,
     }
   }
 );

@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+var Float = require('mongoose-float').loadType(mongoose, 2);
+
 
 const dailyConsumptionSchema = new mongoose.Schema({
   studentId: {
@@ -17,12 +19,13 @@ const dailyConsumptionSchema = new mongoose.Schema({
           default:1
       }
   }],
-    paymentId:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"Payment",
-    },
+    // totalAmount:{
+    //     type:Float,
+    //     required:true
+    // },
     Date:{
         type:Date,
+        default:Date.now,
         required:true,
     },
     partOfDay:{

@@ -1,24 +1,21 @@
 const mongoose = require("mongoose");
 var Float = require('mongoose-float').loadType(mongoose, 2);
 
-const paymentSchema = new mongoose.Schema({
+const paymentHistorySchema = new mongoose.Schema({
     studentId:{
         type: mongoose.Schema.Types.ObjectId,
         ref:"Student",
         required:true
     },
-    newDueAmount:{
+    dueAmount:{
         type:Float,
     },
-    lastDueAmount:{
+    paidAmount:{
         type:Float,
     },
-    lastPaidAmount:{
-        type:Float
-    },
-    lastPaidDate:{
+    paidDate:{
         type:Date
     }
 })
 
-module.exports = mongoose.model("Payment",paymentSchema);
+module.exports = mongoose.model("PaymentHistory",paymentHistorySchema);

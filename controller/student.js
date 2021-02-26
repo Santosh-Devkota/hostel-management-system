@@ -1,8 +1,13 @@
 const Student = require("../model/student");
+var fs = require("fs");
+var path = require("path");
+var appDir = path.dirname(require.main.filename);
 const ErrorResponse = require("../utils/customError");
 const { asyncMiddleware } = require("../middleware/asyncMiddleware");
 const Room = require("../model/room");
 var generator = require('generate-password');
+const CurrentPayment = require("../model/MessModels/currentPayment");
+const PaymentHistory = require("../model/MessModels/paymentHistory");
 
 //@des      Get all the students
 //@route    GET /students
@@ -89,6 +94,7 @@ exports.createStudent = async (req, res) => {
 //@access   Private
 exports.updateStudent = async (req, res) => {
   try {
+    // req.body.imageUrl = req.upload;
     const result = await Student.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
@@ -104,6 +110,7 @@ exports.updateStudent = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
+    fs.unlinkSync(appDir + req.upload);
     res.status(404).json({
       msg: "Unable to delete the student!",
     });
@@ -117,7 +124,11 @@ exports.deleteStudent = async (req, res) => {
   try {
     const result = await Student.findOneAndDelete(req.params.id);
     if(result){
+      // deleting the student's record from the respective room
       const operationResult = await Room.updateOne({students:req.params.id},{$pull:{students:req.params.id}})
+      // deleting the student record from mess
+      const result1 = await CurrentPayment.findOneAndDelete({studentId:req.params.id});
+      const result2 = await PaymentHistory.deleteMany({studentId:req.params.id});
     }
     if (!result) {
       res.status(404).json({

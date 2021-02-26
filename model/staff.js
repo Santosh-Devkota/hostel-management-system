@@ -33,6 +33,9 @@ const staffSchema = new mongoose.Schema({
   isPasswordChanged:{
     type:Boolean,
     default:false
+  },
+  imageUrl:{
+    type:String,
   }
   // resetPasswordToken: String,
   // resetPasswordExpire: Date,

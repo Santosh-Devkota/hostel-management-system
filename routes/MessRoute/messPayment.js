@@ -1,13 +1,16 @@
 const express = require("express");
 const Router = express.Router()
-const {addNewPayment,
-    findPayment,
-    updatePayment,
-    deletePaymentById} = require("../../controller/Mess/messPayment");
+const {makeNewPayment,
+    findPaymentHistory,
+    // updateCurrentPaymentRecord,
+    deletePaymentRecord
+    } = require("../../controller/Mess/payment");
 
-Router.post("/mess/payment/addnew",addNewPayment);
-Router.get("/mess/payment/findpayment",findPayment);
-Router.put("/mess/payment/updatepayment",updatePayment);
-Router.delete("/mess/payment/delete/:id",deletePaymentById);
+
+Router.get("/mess/payment/findhistory",findPaymentHistory);
+Router.put("/mess/payment/makepayment",makeNewPayment);
+// Router.put("/mess/payment/updaterecord",updateCurrentPaymentRecord);
+Router.delete("/mess/payment/delete/:id",deletePaymentRecord);
 
 module.exports = Router
+
