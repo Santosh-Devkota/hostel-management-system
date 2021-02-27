@@ -82,7 +82,7 @@ const studentSchema = new mongoose.Schema(
 );
 studentSchema.methods.generateAuthToken = function () {
   try {
-    const token = jwt.sign({_id:this._id,role:this.role,username:this.username,fullName:this.fullName,email:this.email,isPasswordChanged:this.isPasswordChanged},
+    const token = jwt.sign({_id:this._id,role:this.role,username:this.username,fullName:this.fullName,email:this.email,isPasswordChanged:this.isPasswordChanged,rollNo:this.rollNo},
       process.env.JWT_SECRETKEY,
       {
         expiresIn: 86400, //the token expires in 24hr
