@@ -169,7 +169,7 @@ exports.loginUser = async (req, res, next) => {
             if(req.body.password == student.password){
               // means password matches to the unchanged password
               const token = student.generateAuthToken();
-              return res.status(200).json({user:user,data:{token:token}});
+              return res.status(200).json({user:student,data:{token:token}});
             }
             res.status(400).json({
               msg:"Invalid username or password"
