@@ -224,7 +224,7 @@ exports.initialPasswordReset = async(req,res)=>{
         try {
           const salt = await bcrypt.genSalt(10);
           password = await bcrypt.hash(req.body.newpassword,salt);
-          if(req.user._id === student){
+          if(req.user.role === "student"){
             const student = await Student.findById(req.user._id);
             student.isPasswordChanged = true;
             student.password = password;

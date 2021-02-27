@@ -17,7 +17,6 @@ exports.getMessage = async(req,res)=>{
         // } else {
         //     res.status(400).json({});
         // }
-
         const {sender,receiver} = req.query
         const staffRole = ['admin',"hostelstaff","messstaff"];
         if((staffRole.includes(sender) && !staffRole.includes(receiver))){
