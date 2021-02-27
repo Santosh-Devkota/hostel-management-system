@@ -25,8 +25,8 @@ const studentQuerySchema = new mongoose.Schema({
     },
     resolveStatus:{
         type:String,
-        enum:["Pending","Resolved"],
-        default:"Pending"
+        enum:["pending","resolved"],
+        default:"pending"
     }
 })
 

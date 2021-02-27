@@ -4,6 +4,7 @@ const Query = require("../model/query");
 //@route POST /studentquery/add
 exports.addNewQuery = async(req,res)=>{
     try {
+        req.body.studentId = req.user._id;
         const result = await Query.create(req.body);
         if(!result){
             return res.status(404).json({msg:"Couldn't add the query!"});
@@ -20,7 +21,7 @@ exports.getLatestQuery = async (req, res, next) => {
     try {
       const result = await Query.find().sort({"_id":-1});
       if (result.length === 0) {
-        return res.status(404).json({msg:"No Queries to show!"})
+        return res.status(200).json({msg:"No queries added yet!"})
       }
       res.status(200).json({
         data: result,
@@ -30,9 +31,23 @@ exports.getLatestQuery = async (req, res, next) => {
       res.status(400).json({msg:"Couldn't show Queries!"})
     }
   };
+
+  //@route GET /studentquery/search/myqueries
+  exports.getMyQueries = async(req,res) =>{
+    try {
+      const result = await Query.find({studentId:req.user._id});
+      if(result.length === 0 ){
+        return res.status(200).json({msg:"No Queries found!"});
+      }
+      res.status(200).json({data:result});
+    } catch (error) {
+      console.log(error.message);
+      res.status(404).json({msg:"Couldn't show the Queries!"});
+    }
+  }
   
 //@route GET /studentquery/search?query.....
-// resolveStatus = Pending/Resolved
+// resolveStatus = pending/resolved
 exports.getQuery = async (req, res, next) => {
     try {
       const {resolveStatus} = req.query;
@@ -55,6 +70,7 @@ exports.getQuery = async (req, res, next) => {
   //@route PUT /studentquery/update/:id
   exports.updateQuery = async(req,res)=>{
     try {
+
       const result = await Query.findByIdAndUpdate(req.params.id,req.body,{
         new:true,
         runValidators:true

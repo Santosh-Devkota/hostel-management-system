@@ -67,6 +67,16 @@ const studentSchema = new mongoose.Schema(
     },
     imageUrl:{
       type:String,
+    },
+    parentsName:{
+      type:String,
+    },
+    parentsContact:{
+      type:String,
+    },
+    sex:{
+      type:String,
+      enum:["male","female"]
     }
   }
 );
