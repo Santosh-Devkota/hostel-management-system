@@ -68,12 +68,11 @@ exports.postMessage = async(req,res)=>{
         const staffRole = ['admin',"hostelstaff","messstaff"];
         if((staffRole.includes(sender) && !staffRole.includes(receiver))){
             req.body.senderId = await Staffs.find({role:sender}).select("_id");
-            let a= []
+            let a= [];
             req.body.receiverId = a.push(receiver);
         } else if(!staffRole.includes(sender) && staffRole.includes(receiver)){
-            let a= []
-            req.body.receiverId = a.push(receiver);
-            req.body.senderId = sender;
+            let a= [];
+            req.body.senderId = a.push(sender);
             req.body.receiverId = await Staffs.find({role:receiver}).select("_id");
         } else if((staffRole.includes(sender) && staffRole.includes(receiver))){
             req.body.senderId = await Staffs.find({role:sender}).select("_id");
