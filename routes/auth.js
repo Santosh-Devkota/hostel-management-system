@@ -27,6 +27,7 @@ const {
   findAllStaffs,
   updateStaffDetails,
   deleteStaff,
+  getLoginDetailsByUsername,
 } = require("../controller/auth");
 const isAdmin = require("../middleware/isAdmin");
 
@@ -36,11 +37,13 @@ router.post("/register/staff",[authorize,isAdmin],registerStaff)
 router.post("/login", loginUser);
 router.get("/find/staff/:username",[authorize,isAdmin],findStaffByUsername);
 router.get("/findall/staff",[authorize,isAdmin],findAllStaffs)
+
 router.put("/update/staff/:id",[authorize,isAdmin,
   // upload.single("image")
 ],updateStaffDetails);
 // router.get("/me", [authorize], currentUser);
 router.get("/logindetails",[authorize,isAdmin],getLoginDetails);
+router.get("/logindetails/search/:username",[authorize,isAdmin],getLoginDetailsByUsername);
 router.put("/initialpasswordreset",authorize,initialPasswordReset)
 router.put("/resetpassword/:resetId",[authorize,isAdmin], resetPassword);
 router.delete("/delete/staff/:id",[authorize,isAdmin],deleteStaff);

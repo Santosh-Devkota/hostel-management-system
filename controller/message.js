@@ -135,9 +135,6 @@ exports.deleteReply = async(req,res)=>{
         console.log(error.message);
         res.status(400).json({msg:"Unable to delete the reply"})
     }
-
-    
-    
 }
 
 //@route /message/delete/:id

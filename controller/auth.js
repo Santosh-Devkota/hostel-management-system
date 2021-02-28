@@ -217,6 +217,49 @@ exports.getLoginDetails = async(req,res)=>{
   }
 }
 
+//route GET /auth/logindetails/search/:username
+exports.getLoginDetailsByUsername = async(req,res) =>{
+  try {
+    const result = await Staffs.findOne({username:req.params.username}).select("+password");
+    if(!result){
+      const result1 = await Student.findOne({rollNo:req.params.username}).select("+password");
+      if(!result1){
+        return res.status(400).json({msg:"User not found!"});
+      }
+      if(result1.isPasswordChanged){
+        result1.password = undefined;
+      }
+      return res.status(200).json({data:result1});
+    }
+    if(result.isPasswordChanged){
+      result.password = undefined;
+    }
+    res.status(200).json({data:result});
+  } catch (error) {
+      console.log(error.message);
+      res.status(404).json({msg:"Unable to search user details!"})
+  }
+  
+}
+
+
+exports.getLoginDetails = async(req,res)=>{
+  try {
+    var users;
+    if(req.query.role === "student"){
+      users = await Student.find({password:{$gte:process.env.PASSWORD_SIZE}}).select("+password");
+    }else{
+      users = await Staffs.find({password:{$gte:process.env.PASSWORD_SIZE}}).select("+password");
+    }
+    if(!users){
+      return res.status(404).json({msg:"No users found!"});
+    }
+    res.status(200).json({data:users});
+  } catch (error) {
+    console.log(error.message);
+    res.status(400).json({msg:"Unable to search the users!"})
+  }
+}
 
 //@route /auth/initstdpasswordreset
 //@des To reset the password for first time by the student/staffs
