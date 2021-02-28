@@ -26,7 +26,7 @@ exports.getMessage = async(req,res)=>{
             req.body.senderId = sender;
             req.body.receiverId = await Staffs.find({role:receiver}).select("_id");
         } else if((staffRole.includes(sender) && staffRole.includes(receiver))){
-            req.body.senderId = await Staffs.find({role:receiver}).select("_id").limit(1);
+            req.body.senderId = await Staffs.find({role:sender}).select("_id").limit(1);
             req.body.receiverId =  await Staffs.find({role:receiver}).select("_id").limit(1)
         }else {
             res.status(400).json({});
@@ -50,7 +50,7 @@ exports.getMessage = async(req,res)=>{
                     }
                   ]
             }
-        ).sort({"date":-1});
+        ).sort({"date":1});
         if(!messages){
             return res.status(404).json({msg:"No message found!"})
         }
@@ -73,7 +73,7 @@ exports.postMessage = async(req,res)=>{
             req.body.senderId = sender;
             req.body.receiverId = await Staffs.find({role:receiver}).select("_id");
         } else if((staffRole.includes(sender) && staffRole.includes(receiver))){
-            req.body.senderId = await Staffs.find({role:receiver}).select("_id");
+            req.body.senderId = await Staffs.find({role:sender}).select("_id");
             req.body.receiverId =  await Staffs.find({role:receiver}).select("_id")
         }else {
             res.status(400).json({});
