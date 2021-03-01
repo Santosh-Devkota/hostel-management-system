@@ -54,13 +54,14 @@ exports.createRoom = async (req, res) => {
 //@access   Public
 exports.getRooms = async (req, res) => {
   try {
-    const result = await Room.find().sort({'_id':-1}).populate("student", "_id");
-  if(result.length === 0){
-    return res.status(400).json({msg:"No rooms to show!"})
-  }
-  res.status(200).json({
-    data: result,
-  });
+    const result = await Room.find().sort({'_id':-1}).populate("students", "rollNo fullName");
+    if(result.length === 0){
+      return res.status(400).json({msg:"No rooms to show!"})
+    }
+    
+    res.status(200).json({
+      data: result,
+    });
   } catch (error) {
     console.log(error.message);
     res.status(400).json({});
@@ -70,7 +71,7 @@ exports.getRooms = async (req, res) => {
 //@rout GET /rooms/namesearch/:roomname
 exports.getRoomByRoomName = async (req, res) => {
   try {
-    const result = await Room.findOne({roomName:req.params.roomname}).populate("student","rollNo fullName");
+    const result = await Room.findOne({roomName:req.params.roomname}).populate("students","rollNo fullName");
     if(!result){
       return res.status(404).json({msg:"No rooms found!"});
     }
@@ -85,7 +86,7 @@ exports.getRoomByRoomName = async (req, res) => {
 //@route GET /rooms/blocksearch/:block
 exports.getRoomsByBlock = async(req,res)=>{
   try {
-    const rooms = await Room.find({block:req.params.block})
+    const rooms = await Room.find({block:req.params.block}).populate("students","rollNo fullName")
     if(rooms.length === 0){
       return res.status(404).json({msg:"No rooms found!"});
     }
@@ -101,12 +102,12 @@ exports.getVacantRooms = async(req,res)=>{
   try {
     var rooms;
     if(req.query.block === undefined){
-      rooms = await Room.find({$expr: {$lt: [{$size: "$students"}, process.env.ROOM_SIZE]}})
+      rooms = await Room.find({$expr: {$lt: [{$size: "$students"}, process.env.ROOM_SIZE]}}).populate("rollNo fullName")
     } else{
-      rooms = await Room.find({$expr: {$lt: [{$size: "$students"}, process.env.ROOM_SIZE]}}).where("block").equals(req.query.block);
+      rooms = await Room.find({$expr: {$lt: [{$size: "$students"}, process.env.ROOM_SIZE]}}).where("block").equals(req.query.block).populate("rollNo fullName");
     }
     if(!rooms){
-      return res.status(404).json({msg:"No rooms found!"});
+      return res.status(200).json({msg:"No vacant rooms found!"});
     }
     res.status(200).json({data:rooms});
   } catch (error) {

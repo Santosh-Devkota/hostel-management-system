@@ -22,10 +22,11 @@ exports.getStudents = async (req, res) => {
 };
 
 //@des      Get single the Student
-//@route    GET /students/:id
+//@route    GET /students/:rollNo
 //@access   Public
 exports.getStudentByRollNo = async (req, res) => {
-  const result = await Student.findOne({rollNo:req.params.rollno});
+  const result = await Student.findOne({rollNo:req.params.rollno})
+                .populate({path:"room",select:"roomName"});
   if (!result) {
    return res.status(404).json({
       msg: "not found bitch",
@@ -47,7 +48,7 @@ exports.getStudentByFilter = async(req,res)=>{
   //  if(block) {query.block = req.query.block};
     if(batch) {query.batch = req.query.batch};
     if(faculty) {query.faculty = req.query.faculty};
-    const student = await Student.find(query).populate({path:"room",match:{block:req.query.block}});
+    const student = await Student.find(query).populate({path:"room",match:{block:req.query.block},select:"roomName"});
       if(student.length ==0){
         res.status(404).json({msg:"No such records"});
       }
@@ -98,7 +99,7 @@ exports.updateStudent = async (req, res) => {
     const result = await Student.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
-    });
+    }).populate({path:"room",select:"roomName"});
     if (!result) {
       res.status(404).json({
         msg: `Student with id:${req.params.id} not found!`,
