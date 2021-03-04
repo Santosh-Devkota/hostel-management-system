@@ -33,6 +33,7 @@ if (process.env.JWT_SECRETKEY == undefined) {
   console.log("FATAL ERROR: jwt secret key is not provided");
   process.exit(1);
 }
+app.use(express.static('public'));
 //Mounting userAuthentication routes
 app.use("/auth", authRouter);
 //Mounting the notices routers
@@ -65,7 +66,7 @@ app.use("/rooms", roomRouter);
 const PORT = process.env.PORT || 3000;
 app.listen(
   PORT,
-  // "192.168.0.13",
+  // "192.168.0.3",
   console.log(
     `Listening with Env:${process.env.DEV_ENV} on port ${process.env.PORT}...`
   )

@@ -61,6 +61,7 @@ const studentSchema = new mongoose.Schema(
       type:Schema.Types.ObjectId,
       ref:"Room"
     },
+    
     isInMess:{
       type:Boolean,
       default:false

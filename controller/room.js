@@ -13,7 +13,9 @@ exports.createRoom = async (req, res) => {
         msg:"Room already exists."
       })
     }
-    req.body.students = req.body.students.filter(function(e) { return e !== "" });
+    // req.body.students = req.body.students.filter(function(e) { return e !== "" });
+    const hello = req.body.students.filter(function(e) { return e !== "" });
+    req.body.students = hello;
     if(req.body.students.length != 0){
       //to remove empty students
       
@@ -123,21 +125,24 @@ exports.getVacantRooms = async(req,res)=>{
 //@access   Private
 exports.updateRoom = async (req, res) => {
   try {
-    req.body.students = req.body.students.filter(function(e) { return e !== "" });
+    const hello = req.body.students.filter(function(e) { return e !== "" });
+    req.body.students = hello;
+    console.log(req.body.students);
     // req.body.students.length != 0 checks if there is any student provided for update in room
-    if(req.body.students.length != 0){
+    if(req.body.students.length !== 0){
       
       // For example req.body.students = ["073BEX437"] 
       // Promise.all resolves all the remaining promises so that you won't get promise object as return
       const students = await Promise.all(req.body.students.map(async(stdRoll)=> await Student.findOne({rollNo: stdRoll})));
+      console.log(students);
       if(students.includes(null) || students.includes(undefined)){
-        return res.status(400).json({msg: "The student(s) doesn't exist!"});
+        return res.status(400).json({msg: "Student already assigned!"});
       }
       //determining the value of room field in student's record
       var studentsRoom = students.map((std) => std.room);
 
       // checking if the room is defined for that particular student
-      if(!studentsRoom.includes(undefined)){
+      if(studentsRoom.includes(undefined)){
         return res.status(400).json({msg:"The student(s) is already assigned to a room"})
       }
       // IF not assigned continued to add the requested student to the room

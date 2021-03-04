@@ -25,7 +25,7 @@ const resultStorage = multer.diskStorage({
   },
   filename:(req,file,cb)=>{
       let filename=Date.now()+"_"+file.originalname;
-          const imageUrl = "/public/result/"+filename;
+          const imageUrl = "/result/"+filename;
           req.resultImageUrl.push(imageUrl)
           cb(null,filename);
   }

@@ -11,8 +11,8 @@ const PaymentHistory = require("../model/MessModels/paymentHistory");
 //@route    GET /students
 //@access   Public 
 exports.getStudents = async (req, res) => {
-  const result = await Student.find().sort({'_id': -1})
-  .limit(10);
+  const result = await Student.find().sort({'_id': -1}).populate("room","roomName");
+// .limit(10);
   // remember find() always gives array && it gives empty array if no data exists
   res.status(200).json({
     data: result,
