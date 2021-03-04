@@ -10,17 +10,20 @@ var appDir = path.dirname(require.main.filename);
 //@des regsiter staff
 //@router Post /auth/register/staff
 //@access private
+
 exports.registerStaff = async (req, res, next) => {
   try {
     const staff = await Staffs.findOne({ username:req.body.username });
     if(staff){
       return res.status(400).json({msg:"Staff already exists"});
     }
-
     const newStaff = new Staffs({
       username: req.body.username,
       email: req.body.email,
-      isPasswordChanged:false
+      isPasswordChanged:false,
+      contact:req.body.contact,
+      fullName:req.body.fullName,
+      address:req.body.address
     });
     if(!req.body.role)
     {
@@ -203,7 +206,7 @@ exports.getLoginDetails = async(req,res)=>{
   try {
     var users;
     if(req.query.role === "student"){
-      users = await Student.find({password:{$gte:process.env.PASSWORD_SIZE}}).select("+password");
+      users = await Student.find({password:{$gte:process.env.PASSWORD_SIZE}}).populate("room").select("+password");
     }else{
       users = await Staffs.find({password:{$gte:process.env.PASSWORD_SIZE}}).select("+password");
     }
@@ -222,7 +225,7 @@ exports.getLoginDetailsByUsername = async(req,res) =>{
   try {
     const result = await Staffs.findOne({username:req.params.username}).select("+password");
     if(!result){
-      const result1 = await Student.findOne({rollNo:req.params.username}).select("+password");
+      const result1 = await (await Student.findOne({rollNo:req.params.username}).populate("room").select("+password"));
       if(!result1){
         return res.status(400).json({msg:"User not found!"});
       }
@@ -329,3 +332,8 @@ exports.resetPassword = async(req,res)=>{
 //   });
 // };
 
+//@route GET /hello
+
+exports.checkServer = async(req,res)=>{
+  res.status(200).json({msg:"Working correctly!"});
+}

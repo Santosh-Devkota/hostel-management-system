@@ -13,7 +13,7 @@ const studentQuerySchema = new mongoose.Schema({
     queryTitle:{
         type:String,
         required:true,
-        maxlength:50
+        // maxlength:50
     },
     queryContent:{
         type:String,

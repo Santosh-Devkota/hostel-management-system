@@ -63,7 +63,7 @@ exports.getFoodItemById = async(req,res) =>{
 //@route PUT /mesh/updateItem/:id
 exports.updateItem = async(req,res)=>{
     try {
-        const result = await FoodItem.findById(req.params.id);
+        const result = await FoodItem.findByIdAndUpdate(req.params.id,req.body,{new:true,runValidators:true});
         if(!result){
             return res.status(404).json({msg:"Food item not found!"});
         }
@@ -77,7 +77,7 @@ exports.updateItem = async(req,res)=>{
 //@route DELETE /mesh/deleteItem/:id
 exports.deleteItem = async(req,res)=>{
     try {
-        const result = await FoodItem.findById(req.params.id)
+        const result = await FoodItem.findByIdAndDelete(req.params.id)
         if(!result){
             return res.status(404).json({msg:"No such food item!"});
         }

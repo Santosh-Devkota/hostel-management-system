@@ -9,28 +9,32 @@ const FoodItem = require("../../model/MessModels/foodItem");
 //@route POST /mess/dailyconsumption
 exports.addStudentConsumption = async(req,res)=>{
     try {
-        await Promise.all(req.body.map(async(consumption)=>{
-            const result = await DailyConsumption.create(consumption)
+            const result = await DailyConsumption.create(req.body);
+            var totalAmount;
             // calculating the cost the consumed food
-
-            const costList = await Promise.all(consumption.foodDetails.map(async(food)=>{
-                const result = await FoodItem.findById(food.foodId)
-                const price = result.price;
-                return price*food.count;
-            }));
-            const totalAmount = costList.reduce((a, b) => a + b, 0)
-            
-            const currentStudentPayment = await CurrentPayment.findOne({studentId:consumption.studentId});
+            const filteredConsumption = req.body.foodDetails.filter(fooditem=>fooditem.selected);
+            if(filteredConsumption.length !== 0){
+                const costList = await Promise.all(filteredConsumption.map(async(food)=>{
+                    const result = await FoodItem.findById(food.foodId)
+                    const price = result.price;
+                    return price*food.count;
+                }));
+                totalAmount = costList.reduce((a, b) => a + b, 0)
+            } else {
+                totalAmount = 0;
+            }
+            const currentStudentPayment = await CurrentPayment.findOne({studentId:req.body.studentId});
             currentStudentPayment.dueAmount = currentStudentPayment.dueAmount+ totalAmount;
             await currentStudentPayment.save();
-        }));
-    res.status(200).json({msg:"Consumption successfully added!"})
+            res.status(200).json({msg:"Consumption successfully added!"})
+
     } catch (error) {
         console.log(error.message);
         res.status(400).json({msg:"Unable to add consumption detail!"})
     }
+
 }
-//@route GET /mess/enrolledstudents/all
+//@route GET /mess/enrolledmembers/all
 exports.getEnrolledMembers = async(req,res)=>{
     try {
         const results = await Student.find({isInMess:true}).sort({"_id":-1});
@@ -46,6 +50,7 @@ exports.getEnrolledMembers = async(req,res)=>{
 //@route PUT /mess/enrollremove/:rollno?mess=true/false
 exports.enrollRemoveFromMess = async(req,res)=>{
     try {
+        
         // converting string "true/false" to Boolean value
         req.query.mess = JSON.parse(req.query.mess.toLowerCase());
         const student = await Student.findOneAndUpdate({rollNo:req.params.rollno},{isInMess:req.query.mess},

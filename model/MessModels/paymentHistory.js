@@ -14,7 +14,8 @@ const paymentHistorySchema = new mongoose.Schema({
         type:Float,
     },
     paidDate:{
-        type:Date
+        type:Date,
+        default:Date.now
     }
 })
 

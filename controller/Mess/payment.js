@@ -37,6 +37,21 @@ exports.makeNewPayment = async(req,res)=>{
     }
 }
 
+
+
+//@route GET /mess/payment/currentstatus/:id
+exports.getCurrentStatus = async(req,res) =>{
+    try {
+        const result = await CurrentPayment.findOne({studentId:req.params.id});
+        if(!result){
+            return res.status(404).json({msg:"Current payment of given student is not found!"});
+        }
+        res.status(200).json({data:result});
+    } catch (error) {
+        console.log(error.message);
+        res.status(404).json({msg:"Unable to get the current payment !!"});
+    }
+}
 //@route GET /mess/payment/findpayment?query....
 // std_id
 // rollno

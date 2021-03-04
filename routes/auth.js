@@ -28,11 +28,13 @@ const {
   updateStaffDetails,
   deleteStaff,
   getLoginDetailsByUsername,
+  checkServer
 } = require("../controller/auth");
 const isAdmin = require("../middleware/isAdmin");
 
 router = express.Router();
 
+router.get("/hello",checkServer);
 router.post("/register/staff",[authorize,isAdmin],registerStaff)
 router.post("/login", loginUser);
 router.get("/find/staff/:username",[authorize,isAdmin],findStaffByUsername);

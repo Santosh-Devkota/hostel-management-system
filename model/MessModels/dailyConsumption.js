@@ -17,6 +17,9 @@ const dailyConsumptionSchema = new mongoose.Schema({
       count:{
           type:Number,
           default:1
+      },
+      selected:{
+        type:Boolean,
       }
   }],
     // totalAmount:{

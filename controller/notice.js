@@ -1,5 +1,7 @@
 const Notice = require("../model/notice");
 const Staffs = require("../model/staff");
+const Notification = require("../model/notification");
+const Student = require("../model/student");
 
 //@route GET /notice/search/latest?noticefrom=....
 exports.getLatestNotice = async (req, res, next) => {
@@ -49,8 +51,19 @@ exports.postNotice = async (req, res, next) => {
     if(!result){
       return res.status(400).json({msg:"Couldn't add the notice!"})
     }
+    //////////////////////////////
+    var notification ={};
+    notification.contentId = result._id;
+    notification.title = `${toTitleCase(req.user.role)} added a new notice! `;
+    notification.notificationOf = "notice";
+    const result1 = await Notification.create(notification);
+    if(result1){
+      const result2 = await Student.updateMany({},{hasNotification:true});
+      const result3 = await Staffs.updateMany({},{hasNotification:true});
+    }
+    console.log(result1);
     res.status(200).json({
-      msg:"Notice add succesfully!",
+      msg:"Notice added succesfully!",
       data: result,
     });
   } catch (error) {
@@ -79,6 +92,8 @@ exports.updateNotice = async(req,res)=>{
 exports.deleteNotice = async(req,res)=>{
   try {
     const result = await Notice.findByIdAndDelete(req.params.id);
+    const result1 = await Notification.findOneAndDelete({contentId:req.params.id});
+    console.log(result);
     if(!result){
       return res.status(404).json({msg:"Notice with given id not found!"})
     }
@@ -87,4 +102,12 @@ exports.deleteNotice = async(req,res)=>{
     console.log(error.message);
     return res.status(404).json({msg:"Couldn't delete!"})
   }
+}
+function toTitleCase(str) {
+  return str.replace(
+    /\w\S*/g,
+    function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    }
+  );
 }

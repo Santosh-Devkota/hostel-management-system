@@ -2,8 +2,6 @@ const Student = require("../model/student");
 var fs = require("fs");
 var path = require("path");
 var appDir = path.dirname(require.main.filename);
-const ErrorResponse = require("../utils/customError");
-const { asyncMiddleware } = require("../middleware/asyncMiddleware");
 const Room = require("../model/room");
 var generator = require('generate-password');
 const CurrentPayment = require("../model/MessModels/currentPayment");
@@ -26,10 +24,11 @@ exports.getStudents = async (req, res) => {
 //@access   Public
 exports.getStudentByRollNo = async (req, res) => {
   const result = await Student.findOne({rollNo:req.params.rollno})
-                .populate({path:"room",select:"roomName"});
+                // .populate({path:"room",select:"roomName"});
+                .populate("room","roomName");
   if (!result) {
    return res.status(404).json({
-      msg: "not found bitch",
+      msg: "Student not found!",
     });
   }
   res.status(200).json({
@@ -54,6 +53,7 @@ exports.getStudentByFilter = async(req,res)=>{
       }
       res.status(200).json({data:student});
   } catch (error) {
+    console.log(error.message);
     res.status(404).json({});
   }
 }
@@ -95,7 +95,7 @@ exports.createStudent = async (req, res) => {
 //@access   Private
 exports.updateStudent = async (req, res) => {
   try {
-    // req.body.imageUrl = req.upload;
+    req.body.imageUrl = req.upload;
     const result = await Student.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
@@ -147,4 +147,22 @@ exports.deleteStudent = async (req, res) => {
     });
   }
 };
+
+//@route POST /student/result/uploadimages/:id
+exports.addResultImages = async(req,res)=>{
+  try {
+    const result = await Student.findByIdAndUpdate(req.params.id,{$push:{ resultImages:req.resultImageUrl}},{
+      new:true,
+      runValidators:true
+    });
+    console.log(result);
+    if(!result){
+      return res.status(404).json({msg:"Couldn't upload the image"});
+    }
+    res.status(200).json({msg:"Result uploaded!"});
+  } catch (error) {
+    console.log(error.message)
+    res.status(404).json({msg:"Couldn't upload the image"});
+  }
+}
 

@@ -7,12 +7,16 @@ const Student = require("../model/student");
 exports.createRoom = async (req, res) => {
   try {
     const room  = await Room.findOne({roomName: req.body.roomName});
+
     if(room){
       res.status(400).json({
         msg:"Room already exists."
       })
     }
+    req.body.students = req.body.students.filter(function(e) { return e !== "" });
     if(req.body.students.length != 0){
+      //to remove empty students
+      
       // Promise.all resolves all the remaining promises so that you won't get promise object as return
       // to find if the student exist in the database
       // For example req.body.students = ["073BEX437","073....","....."] 
@@ -21,10 +25,8 @@ exports.createRoom = async (req, res) => {
       if(students.includes(undefined) || students.includes(null)){
         return res.status(400).json({msg: "One or more student(s) doesn't exist!"});
       }
-     
       //determining the value of room field in student's record
       var studentsRoom = students.map((std) => std.room);
-
       // checking if the room is defined for that particular student
       if(!studentsRoom.includes(undefined)){
         return res.status(400).json({msg:"The student(s) is already assigned to a room"})
@@ -43,7 +45,7 @@ exports.createRoom = async (req, res) => {
       msg:"Room created successfully!"
     });
   } catch (err) {
-    console.log(err);
+    console.log(error.message);
     res.status(400).json({msg:"Unable to create the room!"})
   }
 };
@@ -102,9 +104,9 @@ exports.getVacantRooms = async(req,res)=>{
   try {
     var rooms;
     if(req.query.block === undefined){
-      rooms = await Room.find({$expr: {$lt: [{$size: "$students"}, process.env.ROOM_SIZE]}}).populate("rollNo fullName")
+      rooms = await Room.find({$expr: {$lt: [{$size: "$students"}, process.env.ROOM_SIZE]}}).populate("students fullName")
     } else{
-      rooms = await Room.find({$expr: {$lt: [{$size: "$students"}, process.env.ROOM_SIZE]}}).where("block").equals(req.query.block).populate("rollNo fullName");
+      rooms = await Room.find({$expr: {$lt: [{$size: "$students"}, process.env.ROOM_SIZE]}}).where("block").equals(req.query.block).populate("students fullName");
     }
     if(!rooms){
       return res.status(200).json({msg:"No vacant rooms found!"});
@@ -121,15 +123,16 @@ exports.getVacantRooms = async(req,res)=>{
 //@access   Private
 exports.updateRoom = async (req, res) => {
   try {
+    req.body.students = req.body.students.filter(function(e) { return e !== "" });
     // req.body.students.length != 0 checks if there is any student provided for update in room
     if(req.body.students.length != 0){
+      
       // For example req.body.students = ["073BEX437"] 
       // Promise.all resolves all the remaining promises so that you won't get promise object as return
       const students = await Promise.all(req.body.students.map(async(stdRoll)=> await Student.findOne({rollNo: stdRoll})));
       if(students.includes(null) || students.includes(undefined)){
         return res.status(400).json({msg: "The student(s) doesn't exist!"});
       }
-
       //determining the value of room field in student's record
       var studentsRoom = students.map((std) => std.room);
 

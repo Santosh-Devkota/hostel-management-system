@@ -17,21 +17,21 @@ exports.getMessage = async(req,res)=>{
         // } else {
         //     res.status(400).json({});
         // }
-        const {sender,receiver} = req.query
-        const staffRole = ['admin',"hostelstaff","messstaff"];
-        if((staffRole.includes(sender) && !staffRole.includes(receiver))){
-            req.body.senderId = req.user._id;
-            req.body.receiverId = receiver;
-        } else if(!staffRole.includes(sender) && staffRole.includes(receiver)){
-            req.body.senderId = sender;
-            req.body.receiverId = await Staffs.find({role:receiver}).select("_id");
-        } else if((staffRole.includes(sender) && staffRole.includes(receiver))){
-            req.body.senderId = await Staffs.find({role:sender}).select("_id").limit(1);
-            req.body.receiverId =  await Staffs.find({role:receiver}).select("_id").limit(1)
-        }else {
-            res.status(400).json({});
-        }
-
+        // const {sender,receiver} = req.query
+        // const staffRole = ['admin',"hostelstaff","messstaff"];
+        // if((staffRole.includes(sender) && !staffRole.includes(receiver))){
+        //     req.body.senderId = req.user._id;
+        //     req.body.receiverId = receiver;
+        // } else if(!staffRole.includes(sender) && staffRole.includes(receiver)){
+        //     req.body.senderId = sender;
+        //     req.body.receiverId = await Staffs.find({role:receiver}).select("_id");
+        // } else if((staffRole.includes(sender) && staffRole.includes(receiver))){
+        //     req.body.senderId = await Staffs.find({role:sender}).select("_id").limit(1);
+        //     req.body.receiverId =  await Staffs.find({role:receiver}).select("_id").limit(1)
+        // }else {
+        //     res.status(400).json({});
+        // }
+        receiver = req.user._id;
 //// ****************************************
         const messages = await Message.find(
             {
@@ -64,7 +64,7 @@ exports.getMessage = async(req,res)=>{
 //route Post /message/add?sender=... & receiver=....
 exports.postMessage = async(req,res)=>{
     try {
-        const {sender,receiver} = req.query
+        const {receiver} = req.query
         const staffRole = ['admin',"hostelstaff","messstaff"];
         if((staffRole.includes(sender) && !staffRole.includes(receiver))){
             req.body.senderId = await Staffs.find({role:sender}).select("_id");
@@ -80,6 +80,10 @@ exports.postMessage = async(req,res)=>{
         }else {
             res.status(400).json({});
         }
+        req.body.senderId = req.user._id;
+        req.body.receiverId = receiver;
+
+        
         const result = await Message.create(req.body);
         if(!result){
             return res.status(400).json({msg:"Message not sent!"});

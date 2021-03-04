@@ -14,6 +14,7 @@ const messDailyConsumptionRouter = require("./routes/MessRoute/dailyConsumption"
 const messPaymentRouter = require("./routes/MessRoute/messPayment");
 const studentQueryRouter = require("./routes/query");
 const messageRouter = require("./routes/message");
+const notificationRouter = require("./routes/notification");
 //load env variables
 dotenv.config({ path: "./config/config.env" });
 
@@ -47,8 +48,11 @@ app.use("/",messFoodRouter);
 app.use("/",messDailyConsumptionRouter);
 
 //Mounting mess Payments route 
-app.use("/",messPaymentRouter)
+app.use("/",messPaymentRouter);
 
+
+//Mounting notification router
+app.use("/",notificationRouter);
 // Mounting message router 
 app.use("/",messageRouter);
 //Mounting the studentDatabase routers
@@ -61,6 +65,7 @@ app.use("/rooms", roomRouter);
 const PORT = process.env.PORT || 3000;
 app.listen(
   PORT,
+  "192.168.0.13",
   console.log(
     `Listening with Env:${process.env.DEV_ENV} on port ${process.env.PORT}...`
   )

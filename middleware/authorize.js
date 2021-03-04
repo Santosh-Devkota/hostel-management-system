@@ -15,6 +15,7 @@ const authorize = function (req, res, next) {
   try {
     const decodePayload = jwt.verify(token, process.env.JWT_SECRETKEY); // will give _id of user
     req.user = decodePayload;
+    req.resultImageUrl = [];
     next();
   } catch (error) {
     res.status(401).json({

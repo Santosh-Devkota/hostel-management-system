@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
-    senderId:[{
-        type:mongoose.Schema.Types.ObjectId,
+    senderId:{
+        type:String,
         required:true
-    }],
+    },
 
-    receiverId:[{
-        type:mongoose.Schema.Types.ObjectId,
+    receiverId:{
+        type:String,
         required:true
-    }],
+    },
     date:{
         type:Date,
         default:Date.now

@@ -68,6 +68,9 @@ const studentSchema = new mongoose.Schema(
     imageUrl:{
       type:String,
     },
+    resultImages:[{
+      type:String
+    }],
     parentsName:{
       type:String,
     },
@@ -77,12 +80,16 @@ const studentSchema = new mongoose.Schema(
     sex:{
       type:String,
       enum:["male","female"]
+    },
+    hasNotification:{
+      type:Boolean,
+      default:true
     }
   }
 );
 studentSchema.methods.generateAuthToken = function () {
   try {
-    const token = jwt.sign({_id:this._id,role:this.role,username:this.username,fullName:this.fullName,email:this.email,isPasswordChanged:this.isPasswordChanged,rollNo:this.rollNo},
+    const token = jwt.sign({_id:this._id,role:this.role,username:this.username,fullName:this.fullName,email:this.email,isPasswordChanged:this.isPasswordChanged,rollNo:this.rollNo,roomNo:this.room},
       process.env.JWT_SECRETKEY,
       {
         expiresIn: 86400, //the token expires in 24hr

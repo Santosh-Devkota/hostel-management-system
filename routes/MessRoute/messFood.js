@@ -3,11 +3,11 @@ const Router = express.Router()
 const {addFoodItem,getAllItems,getFoodItemByName,getFoodItemById,updateItem,deleteItem} = require("../../controller/Mess/messFood");
 
 Router.post("/mess/addFoodItem",addFoodItem);
-Router.get("/mesh/getallitems",getAllItems);
-Router.get("/mesh/searchfoodname/:foodname",getFoodItemByName);
-Router.get("/mesh/searchfoodid/:id",getFoodItemById);
-Router.put("/mesh/updateItem/:id",updateItem);
-Router.delete("/mesh/deleteItem/:id",deleteItem);
+Router.get("/mess/getallitems",getAllItems);
+Router.get("/mess/searchfoodname/:foodname",getFoodItemByName);
+Router.get("/mess/searchfoodid/:id",getFoodItemById);
+Router.put("/mess/updateItem/:id",updateItem);
+Router.delete("/mess/deleteItem/:id",deleteItem);
 
 
 

@@ -27,7 +27,7 @@ const staffSchema = new mongoose.Schema({
   },
   role: {
     type:String,
-    enum:['admin','hostelstaff','student',"messstaff"],
+    enum:['admin','hostelstaff',"messstaff"],
     default:'hostelstaff'
   },
   isPasswordChanged:{
@@ -35,6 +35,21 @@ const staffSchema = new mongoose.Schema({
     default:false
   },
   imageUrl:{
+    type:String,
+  },
+  hasNotification:{
+    type:Boolean,
+    default:false
+  },
+  fullName:{
+    type:String,
+    required:true,
+  },
+  contact:{
+    type:String,
+    required:true,
+  },
+  address:{
     type:String,
   }
   // resetPasswordToken: String,
